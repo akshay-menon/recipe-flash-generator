@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Clock, Users, ChefHat } from 'lucide-react';
+import { Clock, Users, ChefHat, Key } from 'lucide-react';
 
 const sampleRecipe = {
   name: "Honey Garlic Chicken with Rice",
@@ -30,32 +31,89 @@ const sampleRecipe = {
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showRecipe, setShowRecipe] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [isTestingAPI, setIsTestingAPI] = useState(false);
+  const [apiResponse, setApiResponse] = useState('');
+  const [apiError, setApiError] = useState('');
 
   const generateRecipe = async () => {
     setIsLoading(true);
     setShowRecipe(false);
+    setApiResponse('');
+    setApiError('');
     
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     setIsLoading(false);
-    setShowRecipe(true);
+    setApiResponse('API integration coming next! Recipe generation will be implemented in the next step.');
   };
 
   const generateAnother = async () => {
     setIsLoading(true);
+    setApiResponse('');
+    setApiError('');
     
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     setIsLoading(false);
+    setApiResponse('API integration coming next! Recipe generation will be implemented in the next step.');
+  };
+
+  const testAPIConnection = async () => {
+    if (!apiKey.trim()) {
+      setApiError('Please enter your API key');
+      setApiResponse('');
+      setShowRecipe(false);
+      return;
+    }
+
+    setIsTestingAPI(true);
+    setApiError('');
+    setApiResponse('');
+    setShowRecipe(false);
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 100,
+          messages: [{ role: 'user', content: 'Say hello and confirm the API is working' }]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API call failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      const responseText = data.content?.[0]?.text || 'API connected successfully but no response text found';
+      setApiResponse(responseText);
+    } catch (error) {
+      console.error('API test failed:', error);
+      if (error instanceof Error) {
+        setApiError(`API call failed: ${error.message}`);
+      } else {
+        setApiError('API call failed with unknown error');
+      }
+    } finally {
+      setIsTestingAPI(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <ChefHat className="w-8 h-8 text-orange-600 mr-3" />
             <h1 className="text-4xl font-bold text-gray-800">Recipe Generator</h1>
@@ -65,8 +123,41 @@ const Index = () => {
           </p>
         </div>
 
+        {/* API Configuration */}
+        <Card className="mb-8 bg-white shadow-lg rounded-xl border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center mb-4">
+              <Key className="w-5 h-5 text-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-800">API Configuration</h3>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input
+                type="password"
+                placeholder="Enter your Claude API key"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                onClick={testAPIConnection}
+                disabled={isTestingAPI}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+              >
+                {isTestingAPI ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Testing...
+                  </div>
+                ) : (
+                  "Test API Connection"
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Generate Button */}
-        {!showRecipe && (
+        {!showRecipe && !apiResponse && !apiError && (
           <div className="text-center mb-8">
             <Button
               onClick={generateRecipe}
@@ -85,7 +176,57 @@ const Index = () => {
           </div>
         )}
 
-        {/* Recipe Display */}
+        {/* API Response Display */}
+        {(apiResponse || apiError) && (
+          <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
+            <div className={`p-6 text-white ${apiError ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-500 to-blue-600'}`}>
+              <h2 className="text-2xl font-bold mb-2">
+                {apiError ? 'API Test Failed' : 'API Test Response'}
+              </h2>
+            </div>
+            
+            <CardContent className="p-8">
+              <div className="mb-6">
+                <p className={`text-lg leading-relaxed ${apiError ? 'text-red-700' : 'text-gray-700'}`}>
+                  {apiError || apiResponse}
+                </p>
+              </div>
+
+              <div className="text-center pt-4 border-t border-gray-200">
+                <Button
+                  onClick={testAPIConnection}
+                  disabled={isTestingAPI}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300 mr-4"
+                >
+                  {isTestingAPI ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Testing...
+                    </div>
+                  ) : (
+                    "Test Again"
+                  )}
+                </Button>
+                <Button
+                  onClick={generateRecipe}
+                  disabled={isLoading}
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Generating...
+                    </div>
+                  ) : (
+                    "Generate Recipe"
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Recipe Display (existing functionality) */}
         {showRecipe && (
           <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0">
             <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 text-white">
