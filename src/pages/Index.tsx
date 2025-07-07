@@ -252,7 +252,7 @@ const Index = () => {
               </div>
             </div>
             
-            <ScrollArea className="max-h-96">
+            <ScrollArea className="h-96 w-full">
               <CardContent className="p-8">
                 {/* Ingredients Section */}
                 {parsedRecipe.ingredients.length > 0 && (
