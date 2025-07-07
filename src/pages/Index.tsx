@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, Users, ChefHat, Key } from 'lucide-react';
 
 const sampleRecipe = {
@@ -58,6 +59,46 @@ Please format your response exactly like this:
 
 Generate a recipe now.`;
 
+const parseRecipeResponse = (response: string) => {
+  const lines = response.split('\n').filter(line => line.trim());
+  
+  let recipeName = '';
+  let cookingTime = '';
+  let serves = '';
+  const ingredients: string[] = [];
+  const instructions: string[] = [];
+  
+  let currentSection = '';
+  
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    
+    if (trimmedLine.includes('**Recipe Name:**')) {
+      recipeName = trimmedLine.replace('**Recipe Name:**', '').trim();
+    } else if (trimmedLine.includes('**Cooking Time:**')) {
+      cookingTime = trimmedLine.replace('**Cooking Time:**', '').trim();
+    } else if (trimmedLine.includes('**Serves:**')) {
+      serves = trimmedLine.replace('**Serves:**', '').trim();
+    } else if (trimmedLine.includes('**Ingredients:**')) {
+      currentSection = 'ingredients';
+    } else if (trimmedLine.includes('**Instructions:**')) {
+      currentSection = 'instructions';
+    } else if (currentSection === 'ingredients' && trimmedLine.startsWith('-')) {
+      ingredients.push(trimmedLine.substring(1).trim());
+    } else if (currentSection === 'instructions' && /^\d+\./.test(trimmedLine)) {
+      instructions.push(trimmedLine.replace(/^\d+\.\s*/, '').trim());
+    }
+  }
+  
+  return {
+    name: recipeName || 'Generated Recipe',
+    cookingTime: cookingTime || '30-45 minutes',
+    serves: serves || '2 people',
+    ingredients,
+    instructions
+  };
+};
+
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showRecipe, setShowRecipe] = useState(false);
@@ -65,6 +106,7 @@ const Index = () => {
   const [isTestingAPI, setIsTestingAPI] = useState(false);
   const [apiResponse, setApiResponse] = useState('');
   const [apiError, setApiError] = useState('');
+  const [parsedRecipe, setParsedRecipe] = useState<any>(null);
 
   const generateRecipe = async () => {
     setIsLoading(true);
@@ -83,6 +125,7 @@ const Index = () => {
     setIsLoading(true);
     setApiResponse('');
     setApiError('');
+    setParsedRecipe(null);
     
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -96,6 +139,7 @@ const Index = () => {
       setApiError('Please enter your API key');
       setApiResponse('');
       setShowRecipe(false);
+      setParsedRecipe(null);
       return;
     }
 
@@ -103,6 +147,7 @@ const Index = () => {
     setApiError('');
     setApiResponse('');
     setShowRecipe(false);
+    setParsedRecipe(null);
 
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -115,7 +160,7 @@ const Index = () => {
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 100,
+          max_tokens: 1000,
           messages: [{ role: 'user', content: recipePrompt }]
         })
       });
@@ -127,6 +172,10 @@ const Index = () => {
       const data = await response.json();
       const responseText = data.content?.[0]?.text || 'API connected successfully but no response text found';
       setApiResponse(responseText);
+      
+      // Parse the recipe response
+      const parsed = parseRecipeResponse(responseText);
+      setParsedRecipe(parsed);
     } catch (error) {
       console.error('API test failed:', error);
       if (error instanceof Error) {
@@ -186,27 +235,70 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* API Response Display */}
-        {(apiResponse || apiError) && (
+        {/* Recipe Display */}
+        {parsedRecipe && (
           <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
-            <div className={`p-6 text-white ${apiError ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-500 to-blue-600'}`}>
-              <h2 className="text-2xl font-bold mb-2">
-                {apiError ? 'Recipe Generation Failed' : 'Generated Recipe'}
-              </h2>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+              <h2 className="text-3xl font-bold mb-2">{parsedRecipe.name}</h2>
+              <div className="flex items-center space-x-6 text-blue-100">
+                <div className="flex items-center">
+                  <Clock className="w-5 h-5 mr-2" />
+                  <span>{parsedRecipe.cookingTime}</span>
+                </div>
+                <div className="flex items-center">
+                  <Users className="w-5 h-5 mr-2" />
+                  <span>{parsedRecipe.serves}</span>
+                </div>
+              </div>
             </div>
             
-            <CardContent className="p-8">
-              <div className="mb-6">
-                <p className={`text-lg leading-relaxed ${apiError ? 'text-red-700' : 'text-gray-700'}`}>
-                  {apiError || apiResponse}
-                </p>
-              </div>
+            <ScrollArea className="max-h-96">
+              <CardContent className="p-8">
+                {/* Ingredients Section */}
+                {parsedRecipe.ingredients.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-200 pb-2">
+                      Ingredients
+                    </h3>
+                    <ul className="space-y-3">
+                      {parsedRecipe.ingredients.map((ingredient: string, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <span className="inline-block w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                          <span className="text-gray-700 text-lg">{ingredient}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-              <div className="text-center pt-4 border-t border-gray-200">
+                {/* Instructions Section */}
+                {parsedRecipe.instructions.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-200 pb-2">
+                      Instructions
+                    </h3>
+                    <ol className="space-y-4">
+                      {parsedRecipe.instructions.map((instruction: string, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold mr-4 flex-shrink-0 mt-1">
+                            {index + 1}
+                          </span>
+                          <span className="text-gray-700 text-lg leading-relaxed">{instruction}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </CardContent>
+            </ScrollArea>
+
+            {/* Generate Another Button */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50">
+              <div className="text-center">
                 <Button
                   onClick={testAPIConnection}
                   disabled={isTestingAPI}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300 mr-4"
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
                 >
                   {isTestingAPI ? (
                     <div className="flex items-center">
@@ -214,21 +306,41 @@ const Index = () => {
                       Generating...
                     </div>
                   ) : (
-                    "Generate Again"
+                    "Generate Another Recipe"
                   )}
                 </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Error Display */}
+        {apiError && (
+          <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
+            <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 text-white">
+              <h2 className="text-2xl font-bold mb-2">Recipe Generation Failed</h2>
+            </div>
+            
+            <CardContent className="p-8">
+              <div className="mb-6">
+                <p className="text-lg leading-relaxed text-red-700">
+                  {apiError}
+                </p>
+              </div>
+
+              <div className="text-center pt-4 border-t border-gray-200">
                 <Button
-                  onClick={generateRecipe}
-                  disabled={isLoading}
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
+                  onClick={testAPIConnection}
+                  disabled={isTestingAPI}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
                 >
-                  {isLoading ? (
+                  {isTestingAPI ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Generating...
                     </div>
                   ) : (
-                    "Generate Recipe"
+                    "Try Again"
                   )}
                 </Button>
               </div>
