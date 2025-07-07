@@ -28,6 +28,36 @@ const sampleRecipe = {
   ]
 };
 
+const recipePrompt = `Generate a complete dinner recipe that meets these specific requirements:
+
+CONSTRAINTS:
+- Cooking time: 30-45 minutes maximum
+- Serves exactly 2 people
+- Uses only common ingredients (no exotic or hard-to-find items)
+- Must include protein + vegetables + carbs for balanced nutrition
+- Suitable for weekday dinner (not overly complex)
+
+OUTPUT FORMAT:
+Please format your response exactly like this:
+
+**Recipe Name:** [Creative but simple name]
+
+**Cooking Time:** [X minutes]
+
+**Ingredients:**
+- [ingredient 1 with quantity]
+- [ingredient 2 with quantity]
+- [etc.]
+
+**Instructions:**
+1. [Step 1]
+2. [Step 2]
+3. [etc.]
+
+**Serves:** 2 people
+
+Generate a recipe now.`;
+
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showRecipe, setShowRecipe] = useState(false);
@@ -86,7 +116,7 @@ const Index = () => {
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 100,
-          messages: [{ role: 'user', content: 'Say hello and confirm the API is working' }]
+          messages: [{ role: 'user', content: recipePrompt }]
         })
       });
 
@@ -146,42 +176,22 @@ const Index = () => {
                 {isTestingAPI ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Testing...
+                    Generating...
                   </div>
                 ) : (
-                  "Test API Connection"
+                  "Generate Recipe"
                 )}
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Generate Button */}
-        {!showRecipe && !apiResponse && !apiError && (
-          <div className="text-center mb-8">
-            <Button
-              onClick={generateRecipe}
-              disabled={isLoading}
-              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
-            >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                  Generating Recipe...
-                </div>
-              ) : (
-                "Generate Recipe"
-              )}
-            </Button>
-          </div>
-        )}
-
         {/* API Response Display */}
         {(apiResponse || apiError) && (
           <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
             <div className={`p-6 text-white ${apiError ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-500 to-blue-600'}`}>
               <h2 className="text-2xl font-bold mb-2">
-                {apiError ? 'API Test Failed' : 'API Test Response'}
+                {apiError ? 'Recipe Generation Failed' : 'Generated Recipe'}
               </h2>
             </div>
             
@@ -201,10 +211,10 @@ const Index = () => {
                   {isTestingAPI ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Testing...
+                      Generating...
                     </div>
                   ) : (
-                    "Test Again"
+                    "Generate Again"
                   )}
                 </Button>
                 <Button
