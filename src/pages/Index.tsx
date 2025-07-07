@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Users, ChefHat, Key } from 'lucide-react';
+import { Clock, Users, ChefHat } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const sampleRecipe = {
   name: "Honey Garlic Chicken with Rice",
@@ -101,90 +102,42 @@ const parseRecipeResponse = (response: string) => {
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [showRecipe, setShowRecipe] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [isTestingAPI, setIsTestingAPI] = useState(false);
-  const [apiResponse, setApiResponse] = useState('');
   const [apiError, setApiError] = useState('');
   const [parsedRecipe, setParsedRecipe] = useState<any>(null);
+  const { toast } = useToast();
 
   const generateRecipe = async () => {
     setIsLoading(true);
-    setShowRecipe(false);
-    setApiResponse('');
     setApiError('');
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsLoading(false);
-    setApiResponse('API integration coming next! Recipe generation will be implemented in the next step.');
-  };
-
-  const generateAnother = async () => {
-    setIsLoading(true);
-    setApiResponse('');
-    setApiError('');
-    setParsedRecipe(null);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsLoading(false);
-    setApiResponse('API integration coming next! Recipe generation will be implemented in the next step.');
-  };
-
-  const testAPIConnection = async () => {
-    if (!apiKey.trim()) {
-      setApiError('Please enter your API key');
-      setApiResponse('');
-      setShowRecipe(false);
-      setParsedRecipe(null);
-      return;
-    }
-
-    setIsTestingAPI(true);
-    setApiError('');
-    setApiResponse('');
-    setShowRecipe(false);
     setParsedRecipe(null);
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: recipePrompt }]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API call failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
-      const responseText = data.content?.[0]?.text || 'API connected successfully but no response text found';
-      setApiResponse(responseText);
+      const { data, error } = await supabase.functions.invoke('generate-recipe');
       
-      // Parse the recipe response
-      const parsed = parseRecipeResponse(responseText);
-      setParsedRecipe(parsed);
-    } catch (error) {
-      console.error('API test failed:', error);
-      if (error instanceof Error) {
-        setApiError(`API call failed: ${error.message}`);
-      } else {
-        setApiError('API call failed with unknown error');
+      if (error) {
+        throw new Error(error.message || 'Failed to generate recipe');
       }
+
+      if (data?.recipe) {
+        const parsed = parseRecipeResponse(data.recipe);
+        setParsedRecipe(parsed);
+        toast({
+          title: "Recipe Generated!",
+          description: "Your new recipe is ready to cook.",
+        });
+      } else {
+        throw new Error('No recipe data received');
+      }
+    } catch (error) {
+      console.error('Recipe generation failed:', error);
+      setApiError(error instanceof Error ? error.message : 'Recipe generation failed');
+      toast({
+        title: "Generation Failed",
+        description: "Sorry, we couldn't generate a recipe right now.",
+        variant: "destructive",
+      });
     } finally {
-      setIsTestingAPI(false);
+      setIsLoading(false);
     }
   };
 
@@ -202,33 +155,22 @@ const Index = () => {
           </p>
         </div>
 
-        {/* API Configuration */}
+        {/* Generate Recipe Section */}
         <Card className="mb-8 bg-white shadow-lg rounded-xl border-0">
           <CardContent className="p-6">
-            <div className="flex items-center mb-4">
-              <Key className="w-5 h-5 text-blue-600 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-800">API Configuration</h3>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Input
-                type="password"
-                placeholder="Enter your Claude API key"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="flex-1"
-              />
+            <div className="text-center">
               <Button
-                onClick={testAPIConnection}
-                disabled={isTestingAPI}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                onClick={generateRecipe}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-md transition-all duration-300"
               >
-                {isTestingAPI ? (
+                {isLoading ? (
                   <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Generating...
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Generating Recipe...
                   </div>
                 ) : (
-                  "Generate Recipe"
+                  "Generate New Recipe"
                 )}
               </Button>
             </div>
@@ -296,11 +238,11 @@ const Index = () => {
             <div className="p-6 border-t border-gray-200 bg-gray-50">
               <div className="text-center">
                 <Button
-                  onClick={testAPIConnection}
-                  disabled={isTestingAPI}
+                  onClick={generateRecipe}
+                  disabled={isLoading}
                   className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
                 >
-                  {isTestingAPI ? (
+                  {isLoading ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Generating...
@@ -330,11 +272,11 @@ const Index = () => {
 
               <div className="text-center pt-4 border-t border-gray-200">
                 <Button
-                  onClick={testAPIConnection}
-                  disabled={isTestingAPI}
+                  onClick={generateRecipe}
+                  disabled={isLoading}
                   className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
                 >
-                  {isTestingAPI ? (
+                  {isLoading ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Generating...
@@ -348,76 +290,6 @@ const Index = () => {
           </Card>
         )}
 
-        {/* Recipe Display (existing functionality) */}
-        {showRecipe && (
-          <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0">
-            <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 text-white">
-              <h2 className="text-3xl font-bold mb-2">{sampleRecipe.name}</h2>
-              <div className="flex items-center space-x-6 text-green-100">
-                <div className="flex items-center">
-                  <Clock className="w-5 h-5 mr-2" />
-                  <span>{sampleRecipe.cookingTime}</span>
-                </div>
-                <div className="flex items-center">
-                  <Users className="w-5 h-5 mr-2" />
-                  <span>{sampleRecipe.serves}</span>
-                </div>
-              </div>
-            </div>
-            
-            <CardContent className="p-8">
-              {/* Ingredients Section */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-200 pb-2">
-                  Ingredients
-                </h3>
-                <ul className="space-y-3">
-                  {sampleRecipe.ingredients.map((ingredient, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="inline-block w-2 h-2 bg-orange-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      <span className="text-gray-700 text-lg">{ingredient}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Instructions Section */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-200 pb-2">
-                  Instructions
-                </h3>
-                <ol className="space-y-4">
-                  {sampleRecipe.instructions.map((instruction, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="inline-flex items-center justify-center w-8 h-8 bg-green-100 text-green-700 rounded-full font-semibold mr-4 flex-shrink-0 mt-1">
-                        {index + 1}
-                      </span>
-                      <span className="text-gray-700 text-lg leading-relaxed">{instruction}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              {/* Generate Another Button */}
-              <div className="text-center pt-4 border-t border-gray-200">
-                <Button
-                  onClick={generateAnother}
-                  disabled={isLoading}
-                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Generating...
-                    </div>
-                  ) : (
-                    "Generate Another Recipe"
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Footer */}
         <div className="text-center mt-12 text-gray-500">
