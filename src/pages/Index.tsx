@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,30 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Clock, Users, ChefHat, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
 const sampleRecipe = {
   name: "Honey Garlic Chicken with Rice",
   cookingTime: "35 minutes",
   serves: "2 people",
-  ingredients: [
-    "2 chicken breasts (boneless, skinless)",
-    "1 cup jasmine rice",
-    "3 tablespoons honey",
-    "4 cloves garlic (minced)",
-    "2 tablespoons soy sauce",
-    "1 tablespoon olive oil",
-    "1 green onion (chopped)"
-  ],
-  instructions: [
-    "Cook jasmine rice according to package instructions. Set aside and keep warm.",
-    "Season chicken breasts with salt and pepper. Heat olive oil in a large skillet over medium-high heat.",
-    "Cook chicken for 6-7 minutes per side until golden brown and cooked through. Remove and slice.",
-    "In the same skillet, add minced garlic and cook for 30 seconds until fragrant.",
-    "Add honey and soy sauce, stirring to combine. Let it simmer for 2-3 minutes until thickened.",
-    "Return sliced chicken to the skillet, toss with the honey garlic sauce, and serve over rice. Garnish with green onions."
-  ]
+  ingredients: ["2 chicken breasts (boneless, skinless)", "1 cup jasmine rice", "3 tablespoons honey", "4 cloves garlic (minced)", "2 tablespoons soy sauce", "1 tablespoon olive oil", "1 green onion (chopped)"],
+  instructions: ["Cook jasmine rice according to package instructions. Set aside and keep warm.", "Season chicken breasts with salt and pepper. Heat olive oil in a large skillet over medium-high heat.", "Cook chicken for 6-7 minutes per side until golden brown and cooked through. Remove and slice.", "In the same skillet, add minced garlic and cook for 30 seconds until fragrant.", "Add honey and soy sauce, stirring to combine. Let it simmer for 2-3 minutes until thickened.", "Return sliced chicken to the skillet, toss with the honey garlic sauce, and serve over rice. Garnish with green onions."]
 };
-
 const recipePrompt = `Generate a complete dinner recipe that meets these specific requirements:
 
 CONSTRAINTS:
@@ -60,10 +42,8 @@ Please format your response exactly like this:
 **Serves:** 2 people
 
 Generate a recipe now.`;
-
 const parseRecipeResponse = (response: string) => {
   const lines = response.split('\n').filter(line => line.trim());
-  
   let recipeName = '';
   let cookingTime = '';
   let serves = '';
@@ -73,12 +53,9 @@ const parseRecipeResponse = (response: string) => {
   let fat = '';
   const ingredients: string[] = [];
   const instructions: string[] = [];
-  
   let currentSection = '';
-  
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
     if (trimmedLine.includes('**Recipe Name:**')) {
       recipeName = trimmedLine.replace('**Recipe Name:**', '').trim();
     } else if (trimmedLine.includes('**Cooking Time:**')) {
@@ -105,7 +82,6 @@ const parseRecipeResponse = (response: string) => {
       instructions.push(trimmedLine.replace(/^\d+\.\s*/, '').trim());
     }
   }
-  
   return {
     name: recipeName || 'Generated Recipe',
     cookingTime: cookingTime || '30-45 minutes',
@@ -120,38 +96,38 @@ const parseRecipeResponse = (response: string) => {
     instructions
   };
 };
-
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [parsedRecipe, setParsedRecipe] = useState<any>(null);
   const [dietaryPreference, setDietaryPreference] = useState('non-vegetarian');
   const [numberOfPeople, setNumberOfPeople] = useState('2');
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const generateRecipe = async () => {
     setIsLoading(true);
     setApiError('');
     setParsedRecipe(null);
-
     try {
-      const { data, error } = await supabase.functions.invoke('generate-recipe', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('generate-recipe', {
         body: {
           dietaryPreference,
           numberOfPeople
         }
       });
-      
       if (error) {
         throw new Error(error.message || 'Failed to generate recipe');
       }
-
       if (data?.recipe) {
         const parsed = parseRecipeResponse(data.recipe);
         setParsedRecipe(parsed);
         toast({
           title: "Recipe Generated!",
-          description: "Your new recipe is ready to cook.",
+          description: "Your new recipe is ready to cook."
         });
       } else {
         throw new Error('No recipe data received');
@@ -162,25 +138,21 @@ const Index = () => {
       toast({
         title: "Generation Failed",
         description: "Sorry, we couldn't generate a recipe right now.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
+  return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <ChefHat className="w-8 h-8 text-orange-600 mr-3" />
-            <h1 className="text-4xl font-bold text-gray-800">Recipe Generator</h1>
+            <h1 className="text-4xl font-bold text-gray-800">Weeknight dinners, sorted</h1>
           </div>
-          <p className="text-lg text-gray-600 max-w-md mx-auto">
-            Discover delicious recipes with just one click. Perfect for when you're not sure what to cook!
-          </p>
+          <p className="text-lg text-gray-600 max-w-md mx-auto">Simple, healthy dinner recipes</p>
         </div>
 
         {/* Recipe Filters */}
@@ -232,27 +204,18 @@ const Index = () => {
         <Card className="mb-8 bg-white shadow-lg rounded-xl border-0">
           <CardContent className="p-6">
             <div className="text-center">
-              <Button
-                onClick={generateRecipe}
-                disabled={isLoading}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-md transition-all duration-300"
-              >
-                {isLoading ? (
-                  <div className="flex items-center">
+              <Button onClick={generateRecipe} disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-md transition-all duration-300">
+                {isLoading ? <div className="flex items-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Generating Recipe...
-                  </div>
-                ) : (
-                  "Generate New Recipe"
-                )}
+                  </div> : "Generate New Recipe"}
               </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Recipe Display */}
-        {parsedRecipe && (
-          <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
+        {parsedRecipe && <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
               <h2 className="text-3xl font-bold mb-2">{parsedRecipe.name}</h2>
               <div className="flex items-center space-x-6 text-blue-100">
@@ -270,9 +233,8 @@ const Index = () => {
             <ScrollArea className="h-96 w-full">
               <CardContent className="p-8">
                 {/* Nutritional Information Section */}
-                {parsedRecipe.nutrition && (
-                  <div className="mb-8 bg-green-50 rounded-lg p-6 border border-green-200">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                {parsedRecipe.nutrition && <div className="mb-8 bg-green-50 rounded-lg p-6 border border-green-200">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4 text-left">
                       Nutritional Information (per person)
                     </h3>
                     <div className="space-y-3">
@@ -294,72 +256,53 @@ const Index = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Ingredients Section */}
-                {parsedRecipe.ingredients.length > 0 && (
-                  <div className="mb-8">
+                {parsedRecipe.ingredients.length > 0 && <div className="mb-8">
                     <h3 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-200 pb-2">
                       Ingredients
                     </h3>
                     <ul className="space-y-3">
-                      {parsedRecipe.ingredients.map((ingredient: string, index: number) => (
-                        <li key={index} className="flex items-start">
+                      {parsedRecipe.ingredients.map((ingredient: string, index: number) => <li key={index} className="flex items-start">
                           <span className="inline-block w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                           <span className="text-gray-700 text-lg">{ingredient}</span>
-                        </li>
-                      ))}
+                        </li>)}
                     </ul>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Instructions Section */}
-                {parsedRecipe.instructions.length > 0 && (
-                  <div className="mb-8">
+                {parsedRecipe.instructions.length > 0 && <div className="mb-8">
                     <h3 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-200 pb-2">
                       Instructions
                     </h3>
                     <ol className="space-y-4">
-                      {parsedRecipe.instructions.map((instruction: string, index: number) => (
-                        <li key={index} className="flex items-start">
+                      {parsedRecipe.instructions.map((instruction: string, index: number) => <li key={index} className="flex items-start">
                           <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold mr-4 flex-shrink-0 mt-1">
                             {index + 1}
                           </span>
                           <span className="text-gray-700 text-lg leading-relaxed">{instruction}</span>
-                        </li>
-                      ))}
+                        </li>)}
                     </ol>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </ScrollArea>
 
             {/* Generate Another Button */}
             <div className="p-6 border-t border-gray-200 bg-gray-50">
               <div className="text-center">
-                <Button
-                  onClick={generateRecipe}
-                  disabled={isLoading}
-                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
+                <Button onClick={generateRecipe} disabled={isLoading} className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300">
+                  {isLoading ? <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Generating...
-                    </div>
-                  ) : (
-                    "Generate Another Recipe"
-                  )}
+                    </div> : "Generate Another Recipe"}
                 </Button>
               </div>
             </div>
-          </Card>
-        )}
+          </Card>}
 
         {/* Error Display */}
-        {apiError && (
-          <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
+        {apiError && <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
             <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 text-white">
               <h2 className="text-2xl font-bold mb-2">Recipe Generation Failed</h2>
             </div>
@@ -372,24 +315,15 @@ const Index = () => {
               </div>
 
               <div className="text-center pt-4 border-t border-gray-200">
-                <Button
-                  onClick={generateRecipe}
-                  disabled={isLoading}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
+                <Button onClick={generateRecipe} disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300">
+                  {isLoading ? <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Generating...
-                    </div>
-                  ) : (
-                    "Try Again"
-                  )}
+                    </div> : "Try Again"}
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
 
 
         {/* Footer */}
@@ -397,8 +331,6 @@ const Index = () => {
           <p>Happy cooking! 👨‍🍳</p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
