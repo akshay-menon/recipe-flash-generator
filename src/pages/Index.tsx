@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Users, ChefHat } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Clock, Users, ChefHat, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -104,6 +105,9 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [parsedRecipe, setParsedRecipe] = useState<any>(null);
+  const [dietaryPreference, setDietaryPreference] = useState('non-vegetarian');
+  const [cookingTime, setCookingTime] = useState('under-30');
+  const [numberOfPeople, setNumberOfPeople] = useState('2');
   const { toast } = useToast();
 
   const generateRecipe = async () => {
@@ -112,7 +116,13 @@ const Index = () => {
     setParsedRecipe(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-recipe');
+      const { data, error } = await supabase.functions.invoke('generate-recipe', {
+        body: {
+          dietaryPreference,
+          cookingTime,
+          numberOfPeople
+        }
+      });
       
       if (error) {
         throw new Error(error.message || 'Failed to generate recipe');
@@ -154,6 +164,67 @@ const Index = () => {
             Discover delicious recipes with just one click. Perfect for when you're not sure what to cook!
           </p>
         </div>
+
+        {/* Recipe Filters */}
+        <Card className="mb-6 bg-white shadow-lg rounded-xl border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Filter className="w-5 h-5 text-gray-600" />
+              <h3 className="text-lg font-semibold text-gray-800">Recipe Preferences</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Dietary Preference */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Dietary Preference</label>
+                <Select value={dietaryPreference} onValueChange={setDietaryPreference}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="non-vegetarian">Non-vegetarian</SelectItem>
+                    <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                    <SelectItem value="vegan">Vegan</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Cooking Time */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Cooking Time</label>
+                <Select value={cookingTime} onValueChange={setCookingTime}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="under-30">Under 30 minutes</SelectItem>
+                    <SelectItem value="under-45">Under 45 minutes</SelectItem>
+                    <SelectItem value="under-60">Under 1 hour</SelectItem>
+                    <SelectItem value="over-60">More than 1 hour</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Number of People */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Number of People</label>
+                <Select value={numberOfPeople} onValueChange={setNumberOfPeople}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 person</SelectItem>
+                    <SelectItem value="2">2 people</SelectItem>
+                    <SelectItem value="3">3 people</SelectItem>
+                    <SelectItem value="4">4 people</SelectItem>
+                    <SelectItem value="5">5 people</SelectItem>
+                    <SelectItem value="6">6 people</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Generate Recipe Section */}
         <Card className="mb-8 bg-white shadow-lg rounded-xl border-0">
