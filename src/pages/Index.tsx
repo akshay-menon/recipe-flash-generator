@@ -67,6 +67,10 @@ const parseRecipeResponse = (response: string) => {
   let recipeName = '';
   let cookingTime = '';
   let serves = '';
+  let calories = '';
+  let protein = '';
+  let carbs = '';
+  let fat = '';
   const ingredients: string[] = [];
   const instructions: string[] = [];
   
@@ -81,10 +85,20 @@ const parseRecipeResponse = (response: string) => {
       cookingTime = trimmedLine.replace('**Cooking Time:**', '').trim();
     } else if (trimmedLine.includes('**Serves:**')) {
       serves = trimmedLine.replace('**Serves:**', '').trim();
+    } else if (trimmedLine.includes('**Nutritional Information (per person):**')) {
+      currentSection = 'nutrition';
     } else if (trimmedLine.includes('**Ingredients:**')) {
       currentSection = 'ingredients';
     } else if (trimmedLine.includes('**Instructions:**')) {
       currentSection = 'instructions';
+    } else if (currentSection === 'nutrition' && trimmedLine.startsWith('- Calories:')) {
+      calories = trimmedLine.replace('- Calories:', '').trim();
+    } else if (currentSection === 'nutrition' && trimmedLine.startsWith('- Protein:')) {
+      protein = trimmedLine.replace('- Protein:', '').trim();
+    } else if (currentSection === 'nutrition' && trimmedLine.startsWith('- Carbs:')) {
+      carbs = trimmedLine.replace('- Carbs:', '').trim();
+    } else if (currentSection === 'nutrition' && trimmedLine.startsWith('- Fat:')) {
+      fat = trimmedLine.replace('- Fat:', '').trim();
     } else if (currentSection === 'ingredients' && trimmedLine.startsWith('-')) {
       ingredients.push(trimmedLine.substring(1).trim());
     } else if (currentSection === 'instructions' && /^\d+\./.test(trimmedLine)) {
@@ -96,6 +110,12 @@ const parseRecipeResponse = (response: string) => {
     name: recipeName || 'Generated Recipe',
     cookingTime: cookingTime || '30-45 minutes',
     serves: serves || '2 people',
+    nutrition: {
+      calories: calories || 'N/A',
+      protein: protein || 'N/A',
+      carbs: carbs || 'N/A',
+      fat: fat || 'N/A'
+    },
     ingredients,
     instructions
   };
@@ -267,6 +287,34 @@ const Index = () => {
             
             <ScrollArea className="h-96 w-full">
               <CardContent className="p-8">
+                {/* Nutritional Information Section */}
+                {parsedRecipe.nutrition && (
+                  <div className="mb-8 bg-green-50 rounded-lg p-6 border border-green-200">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                      Nutritional Information (per person)
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="text-lg font-medium text-green-700">
+                        {parsedRecipe.nutrition.calories}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
+                        <div className="flex items-center">
+                          <span className="font-medium">Protein:</span>
+                          <span className="ml-2">{parsedRecipe.nutrition.protein}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-medium">Carbs:</span>
+                          <span className="ml-2">{parsedRecipe.nutrition.carbs}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-medium">Fat:</span>
+                          <span className="ml-2">{parsedRecipe.nutrition.fat}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Ingredients Section */}
                 {parsedRecipe.ingredients.length > 0 && (
                   <div className="mb-8">

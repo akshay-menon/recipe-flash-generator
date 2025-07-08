@@ -61,6 +61,12 @@ Please format your response exactly like this:
 
 **Recipe Name:** [Creative but simple name]
 
+**Nutritional Information (per person):**
+- Calories: [X calories] ([Y]% daily intake)
+- Protein: [X]g ([Y]%)
+- Carbs: [X]g ([Y]%)
+- Fat: [X]g ([Y]%)
+
 **Cooking Time:** [X minutes]
 
 **Ingredients:**
