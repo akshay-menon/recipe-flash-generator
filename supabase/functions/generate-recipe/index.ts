@@ -6,34 +6,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', cookingTime = 'under-30', numberOfPeople = '2') => {
-  const cuisines = ['Italian', 'Mexican', 'Asian', 'Mediterranean', 'American', 'Indian', 'Thai', 'French'];
-  
+const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeople = '2') => {
   // Filter proteins based on dietary preference
   let proteins;
   if (dietaryPreference === 'vegan') {
-    proteins = ['tofu', 'beans', 'lentils', 'chickpeas', 'tempeh', 'nuts'];
+    proteins = ['tofu', 'lentils', 'chickpeas', 'tempeh'];
   } else if (dietaryPreference === 'vegetarian') {
-    proteins = ['tofu', 'beans', 'lentils', 'chickpeas', 'eggs', 'cheese', 'tempeh'];
+    proteins = ['tofu', 'lentils', 'chickpeas', 'eggs', 'cheese'];
   } else {
-    proteins = ['chicken', 'beef', 'pork', 'fish', 'tofu', 'eggs', 'beans'];
+    proteins = ['chicken', 'beef', 'pork', 'fish', 'eggs'];
   }
   
-  const cookingMethods = ['pan-fried', 'baked', 'grilled', 'stir-fried', 'roasted', 'sautéed'];
+  const carbs = ['rice', 'pasta', 'quinoa', 'potatoes', 'bread', 'noodles'];
+  const vegetables = ['broccoli', 'bell peppers', 'onions', 'carrots', 'spinach', 'zucchini', 'mushrooms', 'tomatoes'];
+  const sauces = ['soy sauce', 'olive oil', 'garlic sauce', 'tomato sauce', 'lemon juice', 'balsamic vinegar', 'honey', 'teriyaki sauce'];
   
-  const randomCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
   const randomProtein = proteins[Math.floor(Math.random() * proteins.length)];
-  const randomMethod = cookingMethods[Math.floor(Math.random() * cookingMethods.length)];
+  const randomCarb = carbs[Math.floor(Math.random() * carbs.length)];
+  const randomVegetable = vegetables[Math.floor(Math.random() * vegetables.length)];
+  const randomSauce = sauces[Math.floor(Math.random() * sauces.length)];
   const timestamp = Date.now();
-  
-  // Convert cooking time to minutes
-  const timeMap = {
-    'under-30': '30 minutes maximum',
-    'under-45': '45 minutes maximum',
-    'under-60': '1 hour maximum',
-    'over-60': 'more than 1 hour'
-  };
-  const timeConstraint = timeMap[cookingTime] || '30 minutes maximum';
   
   // Convert dietary preference for prompt
   const dietaryMap = {
@@ -43,17 +35,17 @@ const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', cookingTime 
   };
   const dietaryConstraint = dietaryMap[dietaryPreference];
   
-  return `Generate a unique ${randomCuisine} ${dietaryConstraint} dinner recipe featuring ${randomProtein} that is ${randomMethod}. Make this recipe different from typical recipes by being creative with the combination.
+  return `Generate a simple, recognizable dinner recipe using EXACTLY these 4 ingredients: ${randomProtein}, ${randomCarb}, ${randomVegetable}, and ${randomSauce}. Create a straightforward recipe with a simple, familiar name.
 
 Session ID: ${timestamp}
 
 CONSTRAINTS:
-- Cooking time: ${timeConstraint}
+- Cooking time: Under 45 minutes maximum
 - Serves exactly ${numberOfPeople} ${numberOfPeople === '1' ? 'person' : 'people'}
-- Uses only common ingredients (no exotic or hard-to-find items)
-- Must include protein + vegetables + carbs for balanced nutrition
+- Use ONLY these 4 ingredients: ${randomProtein}, ${randomCarb}, ${randomVegetable}, ${randomSauce}
+- All ingredients must be common and easily available
+- Simple, recognizable recipe name (avoid complex or exotic names)
 - Suitable for weekday dinner (not overly complex)
-- Make this recipe unique and different from standard recipes
 ${dietaryConstraint ? `- Must be ${dietaryConstraint}` : ''}
 
 OUTPUT FORMAT:
@@ -99,12 +91,12 @@ serve(async (req) => {
 
     // Read filter parameters from request body
     const requestBody = await req.json().catch(() => ({}));
-    const { dietaryPreference, cookingTime, numberOfPeople } = requestBody;
+    const { dietaryPreference, numberOfPeople } = requestBody;
 
     console.log('Generating recipe with Claude API...');
-    console.log('Filter parameters:', { dietaryPreference, cookingTime, numberOfPeople });
+    console.log('Filter parameters:', { dietaryPreference, numberOfPeople });
 
-    const dynamicPrompt = generateRecipePrompt(dietaryPreference, cookingTime, numberOfPeople);
+    const dynamicPrompt = generateRecipePrompt(dietaryPreference, numberOfPeople);
     console.log('Generated prompt for cuisine/protein variation');
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {

@@ -126,7 +126,6 @@ const Index = () => {
   const [apiError, setApiError] = useState('');
   const [parsedRecipe, setParsedRecipe] = useState<any>(null);
   const [dietaryPreference, setDietaryPreference] = useState('non-vegetarian');
-  const [cookingTime, setCookingTime] = useState('under-30');
   const [numberOfPeople, setNumberOfPeople] = useState('2');
   const { toast } = useToast();
 
@@ -139,7 +138,6 @@ const Index = () => {
       const { data, error } = await supabase.functions.invoke('generate-recipe', {
         body: {
           dietaryPreference,
-          cookingTime,
           numberOfPeople
         }
       });
@@ -193,7 +191,7 @@ const Index = () => {
               <h3 className="text-lg font-semibold text-gray-800">Recipe Preferences</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Dietary Preference */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Dietary Preference</label>
@@ -205,22 +203,6 @@ const Index = () => {
                     <SelectItem value="non-vegetarian">Non-vegetarian</SelectItem>
                     <SelectItem value="vegetarian">Vegetarian</SelectItem>
                     <SelectItem value="vegan">Vegan</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Cooking Time */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Cooking Time</label>
-                <Select value={cookingTime} onValueChange={setCookingTime}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="under-30">Under 30 minutes</SelectItem>
-                    <SelectItem value="under-45">Under 45 minutes</SelectItem>
-                    <SelectItem value="under-60">Under 1 hour</SelectItem>
-                    <SelectItem value="over-60">More than 1 hour</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
