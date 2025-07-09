@@ -89,6 +89,8 @@ const Profile = () => {
           kitchen_equipment: profile.kitchen_equipment,
           preferred_cuisines: profile.preferred_cuisines,
           additional_context: profile.additional_context
+        }, {
+          onConflict: 'user_id'
         });
 
       if (error) throw error;
