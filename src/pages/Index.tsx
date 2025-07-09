@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Clock, Users, ChefHat, Filter } from 'lucide-react';
+import { Clock, Users, ChefHat, Filter, LogOut, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 const sampleRecipe = {
   name: "Honey Garlic Chicken with Rice",
   cookingTime: "35 minutes",
@@ -103,9 +105,8 @@ const Index = () => {
   const [parsedRecipe, setParsedRecipe] = useState<any>(null);
   const [dietaryPreference, setDietaryPreference] = useState('non-vegetarian');
   const [numberOfPeople, setNumberOfPeople] = useState('2');
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { user, signOut, loading } = useAuth();
   const generateRecipe = async () => {
     setIsLoading(true);
     setApiError('');
@@ -148,6 +149,17 @@ const Index = () => {
       setIsLoading(false);
     }
   };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <ChefHat className="w-12 h-12 text-orange-600 mx-auto animate-pulse" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
@@ -157,6 +169,34 @@ const Index = () => {
             <h1 className="text-4xl font-bold text-gray-800">Weeknight dinners, sorted</h1>
           </div>
           <p className="text-lg text-gray-600 max-w-md mx-auto">Simple, healthy dinner recipes</p>
+          
+          {/* User Status */}
+          <div className="flex items-center justify-center gap-4 mt-6">
+            {user ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <User className="w-4 h-4" />
+                  <span>Welcome back, {user.email}</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={signOut}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Sign In / Sign Up
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Recipe Filters */}
@@ -214,6 +254,15 @@ const Index = () => {
                     Generating Recipe...
                   </div> : "Generate New Recipe"}
               </Button>
+              
+              {!user && (
+                <p className="text-sm text-gray-600 mt-4">
+                  <Link to="/auth" className="text-blue-600 hover:underline">
+                    Sign up
+                  </Link>{" "}
+                  to save your favorite recipes and personalize your experience!
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
