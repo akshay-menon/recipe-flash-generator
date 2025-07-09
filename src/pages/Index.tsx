@@ -93,7 +93,8 @@ const parseRecipeResponse = (response: string) => {
       fat: fat || 'N/A'
     },
     ingredients,
-    instructions
+    instructions,
+    imageUrl: undefined as string | undefined
   };
 };
 const Index = () => {
@@ -124,6 +125,9 @@ const Index = () => {
       }
       if (data?.recipe) {
         const parsed = parseRecipeResponse(data.recipe);
+        if (data?.imageUrl) {
+          parsed.imageUrl = data.imageUrl;
+        }
         setParsedRecipe(parsed);
         toast({
           title: "Recipe Generated!",
@@ -229,6 +233,17 @@ const Index = () => {
                 </div>
               </div>
             </div>
+            
+            {/* Recipe Image */}
+            {parsedRecipe.imageUrl && (
+              <div className="px-8 pt-6">
+                <img 
+                  src={parsedRecipe.imageUrl} 
+                  alt={parsedRecipe.name}
+                  className="w-full h-64 object-cover rounded-lg shadow-md"
+                />
+              </div>
+            )}
             
             <ScrollArea className="h-96 w-full">
               <CardContent className="p-8">

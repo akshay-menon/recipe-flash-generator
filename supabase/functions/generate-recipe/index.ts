@@ -84,9 +84,14 @@ serve(async (req) => {
 
   try {
     const claudeApiKey = Deno.env.get('CLAUDE_API_KEY');
+    const stabilityApiKey = Deno.env.get('STABILITY_API_KEY');
     
     if (!claudeApiKey) {
       throw new Error('Claude API key not configured');
+    }
+
+    if (!stabilityApiKey) {
+      throw new Error('Stability API key not configured');
     }
 
     // Read filter parameters from request body
@@ -126,7 +131,51 @@ serve(async (req) => {
     
     console.log('Recipe generated successfully');
 
-    return new Response(JSON.stringify({ recipe: responseText }), {
+    // Extract recipe name for image generation
+    const recipeNameMatch = responseText.match(/\*\*Recipe Name:\*\*\s*(.+)/);
+    const recipeName = recipeNameMatch ? recipeNameMatch[1].trim() : 'Delicious recipe';
+    
+    console.log('Generating image for recipe:', recipeName);
+
+    // Generate image with Stability AI
+    const imagePrompt = `Professional food photography of ${recipeName}, appetizing, restaurant quality, well-lit, beautifully plated, high resolution`;
+    
+    const imageResponse = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${stabilityApiKey}`,
+      },
+      body: JSON.stringify({
+        text_prompts: [
+          {
+            text: imagePrompt,
+            weight: 1
+          }
+        ],
+        cfg_scale: 7,
+        height: 1024,
+        width: 1024,
+        steps: 30,
+        samples: 1
+      })
+    });
+
+    let imageUrl = null;
+    if (imageResponse.ok) {
+      const imageData = await imageResponse.json();
+      if (imageData.artifacts && imageData.artifacts[0]) {
+        imageUrl = `data:image/png;base64,${imageData.artifacts[0].base64}`;
+        console.log('Image generated successfully');
+      }
+    } else {
+      console.error('Image generation failed:', await imageResponse.text());
+    }
+
+    return new Response(JSON.stringify({ 
+      recipe: responseText,
+      imageUrl: imageUrl 
+    }), {
       headers: { 
         ...corsHeaders, 
         'Content-Type': 'application/json',
