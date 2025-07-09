@@ -16,23 +16,35 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          additional_context: string | null
           created_at: string
           email: string | null
           id: string
+          kitchen_equipment: Json | null
+          name: string | null
+          preferred_cuisines: Json | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          additional_context?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          kitchen_equipment?: Json | null
+          name?: string | null
+          preferred_cuisines?: Json | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          additional_context?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          kitchen_equipment?: Json | null
+          name?: string | null
+          preferred_cuisines?: Json | null
           updated_at?: string
           user_id?: string
         }

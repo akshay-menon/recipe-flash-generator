@@ -8,6 +8,8 @@ import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart } from 'lu
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileCompletion } from '@/hooks/useProfileCompletion';
+import ProfileCompletionBanner from '@/components/ProfileCompletionBanner';
 const sampleRecipe = {
   name: "Honey Garlic Chicken with Rice",
   cookingTime: "35 minutes",
@@ -106,8 +108,10 @@ const Index = () => {
   const [dietaryPreference, setDietaryPreference] = useState('non-vegetarian');
   const [numberOfPeople, setNumberOfPeople] = useState('2');
   const [isSaving, setIsSaving] = useState(false);
+  const [showProfileBanner, setShowProfileBanner] = useState(true);
   const { toast } = useToast();
   const { user, signOut, loading } = useAuth();
+  const { isProfileComplete, loading: profileLoading } = useProfileCompletion();
   const generateRecipe = async () => {
     setIsLoading(true);
     setApiError('');
@@ -230,6 +234,12 @@ const Index = () => {
                     Saved Recipes
                   </Button>
                 </Link>
+                <Link to="/profile">
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Profile
+                  </Button>
+                </Link>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -250,6 +260,11 @@ const Index = () => {
             )}
           </div>
         </div>
+
+        {/* Profile Completion Banner */}
+        {user && !profileLoading && isProfileComplete === false && showProfileBanner && (
+          <ProfileCompletionBanner onDismiss={() => setShowProfileBanner(false)} />
+        )}
 
         {/* Recipe Filters */}
         <Card className="mb-6 bg-white shadow-lg rounded-xl border-0">
