@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Clock, Users, ChefHat, Filter, LogOut, User } from 'lucide-react';
+import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -105,6 +105,7 @@ const Index = () => {
   const [parsedRecipe, setParsedRecipe] = useState<any>(null);
   const [dietaryPreference, setDietaryPreference] = useState('non-vegetarian');
   const [numberOfPeople, setNumberOfPeople] = useState('2');
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { user, signOut, loading } = useAuth();
   const generateRecipe = async () => {
@@ -149,6 +150,51 @@ const Index = () => {
       setIsLoading(false);
     }
   };
+
+  const saveRecipe = async () => {
+    if (!user) {
+      toast({
+        title: "Sign Up Required",
+        description: "You need to sign up to save recipes.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!parsedRecipe) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('saved_recipes')
+        .insert({
+          user_id: user.id,
+          recipe_name: parsedRecipe.name,
+          cooking_time: parsedRecipe.cookingTime,
+          serves: parsedRecipe.serves,
+          ingredients: parsedRecipe.ingredients,
+          instructions: parsedRecipe.instructions,
+          nutrition: parsedRecipe.nutrition,
+          image_url: parsedRecipe.imageUrl
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Recipe Saved!",
+        description: "Recipe has been added to your saved recipes."
+      });
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save recipe. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -178,6 +224,12 @@ const Index = () => {
                   <User className="w-4 h-4" />
                   <span>Welcome back, {user.email}</span>
                 </div>
+                <Link to="/saved-recipes">
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" />
+                    Saved Recipes
+                  </Button>
+                </Link>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -352,9 +404,26 @@ const Index = () => {
               </CardContent>
             </ScrollArea>
 
-            {/* Generate Another Button */}
+            {/* Action Buttons */}
             <div className="p-6 border-t border-gray-200 bg-gray-50">
-              <div className="text-center">
+              <div className="flex items-center justify-center gap-4">
+                <Button 
+                  onClick={user ? saveRecipe : () => window.location.href = '/auth'}
+                  disabled={isSaving}
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+                >
+                  {isSaving ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </div>
+                  ) : (
+                    <>
+                      <Heart className="w-4 h-4" />
+                      Save Recipe
+                    </>
+                  )}
+                </Button>
                 <Button onClick={generateRecipe} disabled={isLoading} className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300">
                   {isLoading ? <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -362,6 +431,15 @@ const Index = () => {
                     </div> : "Generate Another Recipe"}
                 </Button>
               </div>
+              
+              {!user && (
+                <p className="text-sm text-gray-600 mt-4 text-center">
+                  <Link to="/auth" className="text-blue-600 hover:underline">
+                    Sign up
+                  </Link>{" "}
+                  to save your favorite recipes!
+                </p>
+              )}
             </div>
           </Card>}
 
