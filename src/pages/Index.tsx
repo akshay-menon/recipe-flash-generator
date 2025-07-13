@@ -118,6 +118,8 @@ const Index = () => {
   const [modificationPlaceholderIndex, setModificationPlaceholderIndex] = useState(0);
   const [isModifying, setIsModifying] = useState(false);
   const [modificationNote, setModificationNote] = useState('');
+  const [userProfile, setUserProfile] = useState<{ name: string | null }>({ name: null });
+  const [rotatingHeadingIndex] = useState(() => Math.floor(Math.random() * 5));
   const { toast } = useToast();
   const { user, signOut, loading } = useAuth();
   const { isProfileComplete, loading: profileLoading } = useProfileCompletion();
@@ -155,6 +157,29 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('user_id', user.id)
+            .single();
+
+          if (!error && data) {
+            setUserProfile({ name: data.name });
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
+
   // Helper function to get dietary preference emoji only
   const getDietaryPreferenceEmoji = () => {
     const options = [
@@ -164,6 +189,29 @@ const Index = () => {
     ];
     const option = options.find(opt => opt.value === dietaryPreference);
     return option?.emoji || '';
+  };
+
+  // Helper function to get rotating heading
+  const getRotatingHeading = () => {
+    const userName = userProfile.name;
+    const headingsWithName = [
+      `Let's make something tasty, ${userName}!`,
+      `What's cooking today, ${userName}?`,
+      `Time to feed you well, ${userName}`,
+      `Ready for dinner magic, ${userName}?`,
+      `Let's cook up something great, ${userName}!`
+    ];
+    
+    const headingsWithoutName = [
+      "Let's make something tasty!",
+      "What's cooking today?",
+      "Time to feed you well",
+      "Ready for dinner magic?",
+      "Let's cook up something great!"
+    ];
+    
+    const headings = userName ? headingsWithName : headingsWithoutName;
+    return headings[rotatingHeadingIndex] || headings[0];
   };
   const generateRecipe = async () => {
     setIsLoading(true);
@@ -353,9 +401,13 @@ Format your response exactly like the original recipe format.`;
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <h1 className="text-4xl font-bold text-gray-800">Weeknight dinners, sorted</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 leading-tight px-4">
+              {getRotatingHeading()}
+            </h1>
           </div>
-          <p className="text-lg text-gray-600 max-w-md mx-auto">Simple, healthy dinner recipes</p>
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-lg mx-auto px-4">
+            AI-powered recipes tailored to your taste and kitchen
+          </p>
           
           {/* User Status */}
           {!user && (
