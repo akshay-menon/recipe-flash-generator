@@ -29,6 +29,12 @@ const CUISINE_OPTIONS = [
   { name: 'Indian', icon: '🍛', description: 'Curries, rice dishes, aromatic spices' }
 ];
 
+const COOKING_EXPERIENCE = [
+  { name: 'Beginner', icon: '👶', description: 'Simple recipes with basic techniques and detailed instructions' },
+  { name: 'Intermediate', icon: '👨‍🍳', description: 'Comfortable with most cooking methods, can handle multi-step recipes' },
+  { name: 'Advanced', icon: '🔥', description: 'Experienced cook, enjoys complex techniques and minimal hand-holding' }
+];
+
 
 const Preferences = () => {
   const { user } = useAuth();
@@ -38,9 +44,11 @@ const Preferences = () => {
   const [profile, setProfile] = useState({
     kitchen_equipment: [] as string[],
     preferred_cuisines: [] as string[],
+    cooking_experience: '' as string,
     additional_context: ''
   });
   const [selectedCuisineForDescription, setSelectedCuisineForDescription] = useState<string | null>(null);
+  const [selectedExperienceForDescription, setSelectedExperienceForDescription] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -66,6 +74,7 @@ const Preferences = () => {
         setProfile({
           kitchen_equipment: Array.isArray(data.kitchen_equipment) ? data.kitchen_equipment.filter((item): item is string => typeof item === 'string') : [],
           preferred_cuisines: Array.isArray(data.preferred_cuisines) ? data.preferred_cuisines.filter((item): item is string => typeof item === 'string') : [],
+          cooking_experience: '', // Will be added to database later
           additional_context: data.additional_context || ''
         });
       }
@@ -145,6 +154,23 @@ const Preferences = () => {
     }
   };
 
+  const toggleExperience = (experienceName: string) => {
+    setProfile(prev => ({
+      ...prev,
+      cooking_experience: prev.cooking_experience === experienceName ? '' : experienceName
+    }));
+  };
+
+  const handleExperienceClick = (experienceName: string) => {
+    toggleExperience(experienceName);
+    // Toggle description for mobile
+    if (window.innerWidth < 768) {
+      setSelectedExperienceForDescription(
+        selectedExperienceForDescription === experienceName ? null : experienceName
+      );
+    }
+  };
+
 
   if (!user) {
     return (
@@ -220,6 +246,65 @@ const Preferences = () => {
                   );
                 })}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Cooking Experience Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ChefHat className="h-5 w-5" />
+                Cooking Experience
+              </CardTitle>
+              <CardDescription>
+                What's your comfort level in the kitchen?
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TooltipProvider>
+                <div className="flex flex-wrap gap-2">
+                  {COOKING_EXPERIENCE.map((experience) => {
+                    const isSelected = profile.cooking_experience === experience.name;
+                    return (
+                      <Tooltip key={experience.name}>
+                        <TooltipTrigger asChild>
+                          <Badge
+                            variant={isSelected ? "default" : "outline"}
+                            className={`
+                              cursor-pointer transition-all duration-200 px-3 py-2 text-sm font-medium
+                              hover:scale-105 active:scale-95 select-none
+                              ${isSelected 
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-input'
+                              }
+                            `}
+                            onClick={() => handleExperienceClick(experience.name)}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <span className="text-base">{experience.icon}</span>
+                              {isSelected && <Check className="h-3 w-3" />}
+                              {experience.name}
+                            </span>
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="hidden md:block">
+                          <p className="text-sm">{experience.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              </TooltipProvider>
+              
+              {/* Mobile descriptions */}
+              {selectedExperienceForDescription && (
+                <div className="mt-3 md:hidden">
+                  <div className="text-sm text-muted-foreground p-3 bg-muted rounded-lg">
+                    <strong>{selectedExperienceForDescription}:</strong>{' '}
+                    {COOKING_EXPERIENCE.find(e => e.name === selectedExperienceForDescription)?.description}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
