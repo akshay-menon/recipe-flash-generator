@@ -35,6 +35,16 @@ const COOKING_EXPERIENCE = [
   { name: 'Advanced', icon: '🔥', description: 'Experienced cook, enjoys complex techniques and minimal hand-holding' }
 ];
 
+const PROTEIN_PREFERENCES = [
+  'Chicken 🐔',
+  'Beef 🥩',
+  'Pork 🐷',
+  'Fish 🐟',
+  'Seafood 🦐',
+  'Vegetarian 🥬',
+  'Eggs 🥚'
+];
+
 
 const Preferences = () => {
   const { user } = useAuth();
@@ -45,6 +55,7 @@ const Preferences = () => {
     kitchen_equipment: [] as string[],
     preferred_cuisines: [] as string[],
     cooking_experience: '' as string,
+    protein_preferences: [] as string[],
     additional_context: ''
   });
   const [selectedCuisineForDescription, setSelectedCuisineForDescription] = useState<string | null>(null);
@@ -75,6 +86,7 @@ const Preferences = () => {
           kitchen_equipment: Array.isArray(data.kitchen_equipment) ? data.kitchen_equipment.filter((item): item is string => typeof item === 'string') : [],
           preferred_cuisines: Array.isArray(data.preferred_cuisines) ? data.preferred_cuisines.filter((item): item is string => typeof item === 'string') : [],
           cooking_experience: '', // Will be added to database later
+          protein_preferences: [], // Will be added to database later
           additional_context: data.additional_context || ''
         });
       }
@@ -169,6 +181,15 @@ const Preferences = () => {
         selectedExperienceForDescription === experienceName ? null : experienceName
       );
     }
+  };
+
+  const toggleProtein = (protein: string) => {
+    setProfile(prev => ({
+      ...prev,
+      protein_preferences: prev.protein_preferences.includes(protein)
+        ? prev.protein_preferences.filter(item => item !== protein)
+        : [...prev.protein_preferences, protein]
+    }));
   };
 
 
@@ -305,6 +326,46 @@ const Preferences = () => {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Protein Preferences Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ChefHat className="h-5 w-5" />
+                Protein Preferences
+              </CardTitle>
+              <CardDescription>
+                What proteins do you enjoy cooking with?
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {PROTEIN_PREFERENCES.map((protein) => {
+                  const isSelected = profile.protein_preferences.includes(protein);
+                  return (
+                    <Badge
+                      key={protein}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`
+                        cursor-pointer transition-all duration-200 px-3 py-2 text-sm font-medium
+                        hover:scale-105 active:scale-95 select-none
+                        ${isSelected 
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                          : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-input'
+                        }
+                      `}
+                      onClick={() => toggleProtein(protein)}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        {isSelected && <Check className="h-3 w-3" />}
+                        {protein}
+                      </span>
+                    </Badge>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
 
