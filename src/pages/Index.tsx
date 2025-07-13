@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart, Sparkles, ChevronDown, Edit3 } from 'lucide-react';
+import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart, Sparkles, ChevronDown, Edit3, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -114,6 +114,7 @@ const Index = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [showProfileBanner, setShowProfileBanner] = useState(true);
   const [isPreferencesExpanded, setIsPreferencesExpanded] = useState(true);
+  const [recipeModification, setRecipeModification] = useState('');
   const { toast } = useToast();
   const { user, signOut, loading } = useAuth();
   const { isProfileComplete, loading: profileLoading } = useProfileCompletion();
@@ -530,34 +531,59 @@ const Index = () => {
 
             {/* Action Buttons */}
             <div className="p-6 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center justify-center gap-4">
-                <Button 
-                  onClick={user ? saveRecipe : () => window.location.href = '/auth'}
-                  disabled={isSaving}
-                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
-                >
-                  {isSaving ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Saving...
-                    </div>
-                  ) : (
-                    <>
-                      <Heart className="w-4 h-4" />
-                      Save Recipe
-                    </>
-                  )}
-                </Button>
-                <Button onClick={generateRecipe} disabled={isLoading} className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-300">
-                  {isLoading ? <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Generating...
-                    </div> : "Generate Another Recipe"}
-                </Button>
+              {/* Recipe Modification Input */}
+              <div className="mb-6">
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Any changes needed?
+                </label>
+                <Input
+                  value={recipeModification}
+                  onChange={(e) => setRecipeModification(e.target.value)}
+                  placeholder="e.g., swap trout for salmon, what can I use instead of sichuan pepper?"
+                  className="w-full transition-all duration-300"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Request specific modifications to the recipe
+                </p>
+              </div>
+
+              {/* Icon Action Buttons */}
+              <div className="flex items-center justify-center gap-6">
+                {/* Save Recipe Button */}
+                <div className="flex flex-col items-center">
+                  <Button 
+                    onClick={user ? saveRecipe : () => window.location.href = '/auth'}
+                    disabled={isSaving}
+                    className="w-14 h-14 rounded-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 p-0 flex items-center justify-center"
+                  >
+                    {isSaving ? (
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    ) : (
+                      <Heart className="w-6 h-6" fill="currentColor" />
+                    )}
+                  </Button>
+                  <span className="text-xs text-gray-600 mt-2 font-medium">Save</span>
+                </div>
+
+                {/* Generate Another Recipe Button */}
+                <div className="flex flex-col items-center">
+                  <Button 
+                    onClick={generateRecipe} 
+                    disabled={isLoading} 
+                    className="w-14 h-14 rounded-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 p-0 flex items-center justify-center"
+                  >
+                    {isLoading ? (
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    ) : (
+                      <RotateCcw className="w-6 h-6" />
+                    )}
+                  </Button>
+                  <span className="text-xs text-gray-600 mt-2 font-medium">New Recipe</span>
+                </div>
               </div>
               
               {!user && (
-                <p className="text-sm text-gray-600 mt-4 text-center">
+                <p className="text-sm text-gray-600 mt-6 text-center">
                   <Link to="/auth" className="text-blue-600 hover:underline">
                     Sign up
                   </Link>{" "}
