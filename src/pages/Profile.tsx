@@ -334,6 +334,26 @@ const Preferences = () => {
             </CardContent>
           </Card>
 
+          {/* Dietary Restrictions & Dislikes Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Dietary Restrictions & Dislikes</CardTitle>
+              <CardDescription>
+                Any allergies, dietary restrictions, or ingredients you prefer to avoid?
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Label htmlFor="dietary-restrictions">Dietary Restrictions & Dislikes</Label>
+              <Textarea
+                id="dietary-restrictions"
+                value={profile.dietary_restrictions}
+                onChange={(e) => setProfile(prev => ({ ...prev, dietary_restrictions: e.target.value }))}
+                placeholder="e.g., Allergic to peanuts, no dairy, I hate brussels sprouts, vegetarian on weekdays"
+                className="mt-2 min-h-[100px]"
+              />
+            </CardContent>
+          </Card>
+
           {/* Protein Preferences Section */}
           <Card>
             <CardHeader>
@@ -371,26 +391,6 @@ const Preferences = () => {
                   );
                 })}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Dietary Restrictions & Dislikes Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Dietary Restrictions & Dislikes</CardTitle>
-              <CardDescription>
-                Any allergies, dietary restrictions, or ingredients you prefer to avoid?
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Label htmlFor="dietary-restrictions">Dietary Restrictions & Dislikes</Label>
-              <Textarea
-                id="dietary-restrictions"
-                value={profile.dietary_restrictions}
-                onChange={(e) => setProfile(prev => ({ ...prev, dietary_restrictions: e.target.value }))}
-                placeholder="e.g., Allergic to peanuts, no dairy, I hate brussels sprouts, vegetarian on weekdays"
-                className="mt-2 min-h-[100px]"
-              />
             </CardContent>
           </Card>
 
