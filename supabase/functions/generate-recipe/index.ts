@@ -9,6 +9,7 @@ const corsHeaders = {
 
 const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeople = '2', specialRequest = '', userPreferences = {}) => {
   const timestamp = Date.now();
+  const randomSeed = Math.floor(Math.random() * 1000000);
   
   // Convert dietary preference for prompt
   const dietaryMap = {
@@ -17,6 +18,24 @@ const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeop
     'vegan': 'vegan (no animal products including dairy, eggs, honey)'
   };
   const dietaryConstraint = dietaryMap[dietaryPreference];
+  
+  // Random elements to ensure variety
+  const cookingMethods = ['pan-frying', 'baking', 'sautéing', 'grilling', 'roasting', 'steaming', 'stir-frying', 'braising'];
+  const flavorProfiles = ['Mediterranean', 'Asian-inspired', 'Latin', 'Middle Eastern', 'European', 'American comfort', 'fresh and light', 'rich and hearty', 'spicy and bold', 'mild and comforting'];
+  const primaryIngredients = ['chicken', 'fish', 'beef', 'pork', 'tofu', 'beans', 'eggs', 'pasta', 'rice', 'quinoa', 'vegetables'];
+  
+  // Filter ingredients based on dietary preference
+  let availableIngredients = [...primaryIngredients];
+  if (dietaryPreference === 'vegetarian') {
+    availableIngredients = availableIngredients.filter(ing => !['chicken', 'fish', 'beef', 'pork'].includes(ing));
+  } else if (dietaryPreference === 'vegan') {
+    availableIngredients = availableIngredients.filter(ing => !['chicken', 'fish', 'beef', 'pork', 'eggs'].includes(ing));
+  }
+  
+  // Random selections for variety
+  const randomCookingMethod = cookingMethods[Math.floor(Math.random() * cookingMethods.length)];
+  const randomFlavorProfile = flavorProfiles[Math.floor(Math.random() * flavorProfiles.length)];
+  const randomIngredient = availableIngredients[Math.floor(Math.random() * availableIngredients.length)];
   
   // Build comprehensive user preferences section
   let preferencesSection = '';
@@ -64,9 +83,21 @@ const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeop
 Please incorporate this request into the recipe while maintaining the other constraints.`;
   }
   
-  return `Generate a delicious dinner recipe that takes into account the user's preferences and dietary needs. Create a creative and flavorful dish that matches their cooking experience level and available equipment.${specialRequestSection}
+  // Variety prompts to ensure different recipes
+  const varietyPrompts = [
+    `Try featuring ${randomIngredient} as a main component with ${randomFlavorProfile} flavors.`,
+    `Focus on ${randomCookingMethod} as the primary cooking technique.`,
+    `Create something with ${randomFlavorProfile} inspiration using ${randomCookingMethod}.`,
+    `Build around ${randomIngredient} with a ${randomFlavorProfile} twist.`,
+    `Emphasize ${randomCookingMethod} techniques for a ${randomFlavorProfile} dish.`
+  ];
+  const selectedVarietyPrompt = varietyPrompts[Math.floor(Math.random() * varietyPrompts.length)];
+  
+  return `Generate a completely unique and delicious dinner recipe. Make sure this recipe is DIFFERENT from any previous recipes you may have generated. Create something creative and flavorful that matches the user's preferences.${specialRequestSection}
 
-Session ID: ${timestamp}
+UNIQUENESS REQUIREMENT: This must be a fresh, original recipe. ${selectedVarietyPrompt} Be creative and avoid common, predictable combinations.
+
+Session ID: ${timestamp}-${randomSeed}
 
 CONSTRAINTS:
 - Cooking time: Under 45 minutes maximum
