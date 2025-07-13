@@ -527,7 +527,7 @@ Format your response exactly like the original recipe format.`;
                   {isLoading ? <div className="flex items-center">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                       Generating Recipe...
-                    </div> : "Let's get cooking"}
+                    </div> : "Let's get cooking 👩‍🍳"}
                 </Button>
                 
                 {!user && (
