@@ -128,7 +128,6 @@ const SavedRecipes = () => {
         {/* Header */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center">
-            <BookOpen className="w-8 h-8 text-orange-600 mr-3" />
             <h1 className="text-4xl font-bold text-gray-800">Saved Recipes</h1>
           </div>
         </div>
