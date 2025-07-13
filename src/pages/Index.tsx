@@ -353,7 +353,6 @@ Format your response exactly like the original recipe format.`;
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <ChefHat className="w-8 h-8 text-orange-600 mr-3" />
             <h1 className="text-4xl font-bold text-gray-800">Weeknight dinners, sorted</h1>
           </div>
           <p className="text-lg text-gray-600 max-w-md mx-auto">Simple, healthy dinner recipes</p>
