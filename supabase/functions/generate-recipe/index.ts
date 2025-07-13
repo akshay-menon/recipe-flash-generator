@@ -1,30 +1,13 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeople = '2') => {
-  // Filter proteins based on dietary preference
-  let proteins;
-  if (dietaryPreference === 'vegan') {
-    proteins = ['tofu', 'lentils', 'chickpeas', 'tempeh'];
-  } else if (dietaryPreference === 'vegetarian') {
-    proteins = ['tofu', 'lentils', 'chickpeas', 'eggs', 'cheese'];
-  } else {
-    proteins = ['chicken', 'beef', 'pork', 'fish', 'eggs'];
-  }
-  
-  const carbs = ['rice', 'pasta', 'quinoa', 'potatoes', 'bread', 'noodles'];
-  const vegetables = ['broccoli', 'bell peppers', 'onions', 'carrots', 'spinach', 'zucchini', 'mushrooms', 'tomatoes'];
-  const sauces = ['soy sauce', 'olive oil', 'garlic sauce', 'tomato sauce', 'lemon juice', 'balsamic vinegar', 'honey', 'teriyaki sauce'];
-  
-  const randomProtein = proteins[Math.floor(Math.random() * proteins.length)];
-  const randomCarb = carbs[Math.floor(Math.random() * carbs.length)];
-  const randomVegetable = vegetables[Math.floor(Math.random() * vegetables.length)];
-  const randomSauce = sauces[Math.floor(Math.random() * sauces.length)];
+const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeople = '2', userPreferences = {}) => {
   const timestamp = Date.now();
   
   // Convert dietary preference for prompt
@@ -35,18 +18,29 @@ const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeop
   };
   const dietaryConstraint = dietaryMap[dietaryPreference];
   
-  return `Generate a simple, recognizable dinner recipe using EXACTLY these 4 ingredients: ${randomProtein}, ${randomCarb}, ${randomVegetable}, and ${randomSauce}. Create a straightforward recipe with a simple, familiar name.
+  // Build user preferences section
+  let preferencesSection = '';
+  if (userPreferences.kitchenEquipment && userPreferences.kitchenEquipment.length > 0) {
+    preferencesSection += `\n- Available kitchen equipment: ${userPreferences.kitchenEquipment.join(', ')}`;
+  }
+  if (userPreferences.preferredCuisines && userPreferences.preferredCuisines.length > 0) {
+    preferencesSection += `\n- Preferred cuisines: ${userPreferences.preferredCuisines.join(', ')}`;
+  }
+  if (userPreferences.additionalContext) {
+    preferencesSection += `\n- Additional preferences: ${userPreferences.additionalContext}`;
+  }
+  
+  return `Generate a delicious dinner recipe that takes into account the user's preferences and dietary needs. Create a creative and flavorful dish.
 
 Session ID: ${timestamp}
 
 CONSTRAINTS:
 - Cooking time: Under 45 minutes maximum
 - Serves exactly ${numberOfPeople} ${numberOfPeople === '1' ? 'person' : 'people'}
-- Use ONLY these 4 ingredients: ${randomProtein}, ${randomCarb}, ${randomVegetable}, ${randomSauce}
 - All ingredients must be common and easily available
-- Simple, recognizable recipe name (avoid complex or exotic names)
-- Suitable for weekday dinner (not overly complex)
-${dietaryConstraint ? `- Must be ${dietaryConstraint}` : ''}
+- Simple, recognizable recipe name (avoid overly complex names)
+- Suitable for weekday dinner
+${dietaryConstraint ? `- Must be ${dietaryConstraint}` : ''}${preferencesSection}
 
 OUTPUT FORMAT:
 Please format your response exactly like this:
@@ -94,15 +88,42 @@ serve(async (req) => {
       throw new Error('Stability API key not configured');
     }
 
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     // Read filter parameters from request body
     const requestBody = await req.json().catch(() => ({}));
-    const { dietaryPreference, numberOfPeople } = requestBody;
+    const { dietaryPreference, numberOfPeople, userId } = requestBody;
+
+    // Fetch user preferences if userId is provided
+    let userPreferences = {};
+    if (userId) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('kitchen_equipment, preferred_cuisines, additional_context')
+          .eq('user_id', userId)
+          .single();
+        
+        if (profile) {
+          userPreferences = {
+            kitchenEquipment: profile.kitchen_equipment || [],
+            preferredCuisines: profile.preferred_cuisines || [],
+            additionalContext: profile.additional_context
+          };
+        }
+      } catch (error) {
+        console.log('Could not fetch user preferences:', error.message);
+      }
+    }
 
     console.log('Generating recipe with Claude API...');
-    console.log('Filter parameters:', { dietaryPreference, numberOfPeople });
+    console.log('Filter parameters:', { dietaryPreference, numberOfPeople, userPreferences });
 
-    const dynamicPrompt = generateRecipePrompt(dietaryPreference, numberOfPeople);
-    console.log('Generated prompt for cuisine/protein variation');
+    const dynamicPrompt = generateRecipePrompt(dietaryPreference, numberOfPeople, userPreferences);
+    console.log('Generated personalized prompt with user preferences');
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',

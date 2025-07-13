@@ -123,7 +123,8 @@ const Index = () => {
       } = await supabase.functions.invoke('generate-recipe', {
         body: {
           dietaryPreference,
-          numberOfPeople
+          numberOfPeople,
+          userId: user?.id
         }
       });
       if (error) {
