@@ -458,7 +458,7 @@ const Preferences = () => {
             <CardHeader>
               <CardTitle>Tell Us More</CardTitle>
               <CardDescription>
-                Any additional preferences, allergies, or cooking style notes?
+                Any additional preferences or cooking style notes?
               </CardDescription>
             </CardHeader>
             <CardContent>
