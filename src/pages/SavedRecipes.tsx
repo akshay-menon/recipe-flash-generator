@@ -126,18 +126,10 @@ const SavedRecipes = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Link to="/">
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Generator
-              </Button>
-            </Link>
-            <div className="flex items-center">
-              <BookOpen className="w-8 h-8 text-orange-600 mr-3" />
-              <h1 className="text-4xl font-bold text-gray-800">Saved Recipes</h1>
-            </div>
+        <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center">
+            <BookOpen className="w-8 h-8 text-orange-600 mr-3" />
+            <h1 className="text-4xl font-bold text-gray-800">Saved Recipes</h1>
           </div>
         </div>
 

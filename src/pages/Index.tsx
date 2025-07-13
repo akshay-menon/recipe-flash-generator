@@ -221,44 +221,16 @@ const Index = () => {
           <p className="text-lg text-gray-600 max-w-md mx-auto">Simple, healthy dinner recipes</p>
           
           {/* User Status */}
-          <div className="flex items-center justify-center gap-4 mt-6">
-            {user ? (
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <User className="w-4 h-4" />
-                  <span>Welcome back, {user.email}</span>
-                </div>
-                <Link to="/saved-recipes">
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4" />
-                    Saved Recipes
-                  </Button>
-                </Link>
-                <Link to="/profile">
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Profile
-                  </Button>
-                </Link>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={signOut}
-                  className="flex items-center gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
+          {!user && (
+            <div className="flex items-center justify-center gap-4 mt-6">
               <Link to="/auth">
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
                   <User className="w-4 h-4" />
                   Sign In / Sign Up
                 </Button>
               </Link>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Profile Completion Banner */}
