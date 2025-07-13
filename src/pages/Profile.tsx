@@ -56,6 +56,7 @@ const Preferences = () => {
     preferred_cuisines: [] as string[],
     cooking_experience: '' as string,
     protein_preferences: [] as string[],
+    dietary_restrictions: '' as string,
     additional_context: ''
   });
   const [selectedCuisineForDescription, setSelectedCuisineForDescription] = useState<string | null>(null);
@@ -73,7 +74,7 @@ const Preferences = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('kitchen_equipment, preferred_cuisines, cooking_experience, protein_preferences, additional_context')
+        .select('kitchen_equipment, preferred_cuisines, cooking_experience, protein_preferences, dietary_restrictions, additional_context')
         .eq('user_id', user?.id)
         .maybeSingle();
 
