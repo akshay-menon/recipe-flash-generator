@@ -17,6 +17,7 @@ export type Database = {
       profiles: {
         Row: {
           additional_context: string | null
+          cooking_experience: string | null
           created_at: string
           email: string | null
           id: string
@@ -24,11 +25,13 @@ export type Database = {
           name: string | null
           preferred_cuisines: Json | null
           profile_emoji: string | null
+          protein_preferences: Json | null
           updated_at: string
           user_id: string
         }
         Insert: {
           additional_context?: string | null
+          cooking_experience?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -36,11 +39,13 @@ export type Database = {
           name?: string | null
           preferred_cuisines?: Json | null
           profile_emoji?: string | null
+          protein_preferences?: Json | null
           updated_at?: string
           user_id: string
         }
         Update: {
           additional_context?: string | null
+          cooking_experience?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -48,6 +53,7 @@ export type Database = {
           name?: string | null
           preferred_cuisines?: Json | null
           profile_emoji?: string | null
+          protein_preferences?: Json | null
           updated_at?: string
           user_id?: string
         }

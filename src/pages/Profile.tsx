@@ -73,9 +73,9 @@ const Preferences = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('kitchen_equipment, preferred_cuisines, additional_context')
+        .select('kitchen_equipment, preferred_cuisines, cooking_experience, protein_preferences, additional_context')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
@@ -85,8 +85,8 @@ const Preferences = () => {
         setProfile({
           kitchen_equipment: Array.isArray(data.kitchen_equipment) ? data.kitchen_equipment.filter((item): item is string => typeof item === 'string') : [],
           preferred_cuisines: Array.isArray(data.preferred_cuisines) ? data.preferred_cuisines.filter((item): item is string => typeof item === 'string') : [],
-          cooking_experience: '', // Will be added to database later
-          protein_preferences: [], // Will be added to database later
+          cooking_experience: data.cooking_experience || '',
+          protein_preferences: Array.isArray(data.protein_preferences) ? data.protein_preferences.filter((item): item is string => typeof item === 'string') : [],
           additional_context: data.additional_context || ''
         });
       }
@@ -114,6 +114,8 @@ const Preferences = () => {
           email: user.email,
           kitchen_equipment: profile.kitchen_equipment,
           preferred_cuisines: profile.preferred_cuisines,
+          cooking_experience: profile.cooking_experience,
+          protein_preferences: profile.protein_preferences,
           additional_context: profile.additional_context,
           updated_at: new Date().toISOString()
         }, {
