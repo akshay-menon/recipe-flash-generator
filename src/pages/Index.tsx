@@ -406,7 +406,7 @@ Format your response exactly like the original recipe format.`;
             </h1>
           </div>
           <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-lg mx-auto px-4">
-            AI-powered recipes tailored to your taste and kitchen
+            AI recipes that fit your life and taste
           </p>
           
           {/* User Status */}
