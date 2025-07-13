@@ -22,7 +22,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Header />
-          <div className="min-h-screen pb-20 md:pb-24 pt-14">
+          <div className="min-h-screen pb-20 md:pb-24">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />

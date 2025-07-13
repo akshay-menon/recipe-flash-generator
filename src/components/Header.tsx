@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut } from 'lucide-react';
+import { LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 const Header = () => {
   const { user, signOut } = useAuth();
-  const [userName, setUserName] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<{ name: string | null; emoji: string }>({
+    name: null,
+    emoji: '👨‍🍳'
+  });
 
   useEffect(() => {
     if (user) {
@@ -18,12 +22,15 @@ const Header = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('name')
+        .select('name, profile_emoji')
         .eq('user_id', user?.id)
         .single();
 
       if (error) throw error;
-      setUserName(data?.name || null);
+      setUserProfile({
+        name: data?.name || null,
+        emoji: data?.profile_emoji || '👨‍🍳'
+      });
     } catch (error) {
       console.error('Error fetching user profile:', error);
     }
@@ -31,27 +38,28 @@ const Header = () => {
 
   if (!user) return null;
 
+  const displayName = userProfile.name || user.email?.split('@')[0] || 'Chef';
+
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          {userName ? (
-            <span>Welcome back, {userName}</span>
-          ) : (
-            <span>Welcome back, {user.email}</span>
-          )}
-        </div>
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={signOut}
-          className="flex items-center gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </Button>
-      </div>
+    <div className="flex justify-end p-4">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="ghost" 
+            className="flex items-center gap-2 hover:bg-accent/50 transition-colors"
+          >
+            <span className="text-lg">{userProfile.emoji}</span>
+            <span className="font-medium">Chef {displayName}</span>
+            <ChevronDown className="w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem onClick={signOut} className="flex items-center gap-2 text-destructive focus:text-destructive">
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
