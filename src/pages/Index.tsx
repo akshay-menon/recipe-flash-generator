@@ -5,7 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart, Sparkles } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart, Sparkles, ChevronDown, Edit3 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -112,6 +113,7 @@ const Index = () => {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [showProfileBanner, setShowProfileBanner] = useState(true);
+  const [isPreferencesExpanded, setIsPreferencesExpanded] = useState(true);
   const { toast } = useToast();
   const { user, signOut, loading } = useAuth();
   const { isProfileComplete, loading: profileLoading } = useProfileCompletion();
@@ -132,6 +134,23 @@ const Index = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  // Helper function to get dietary preference display info
+  const getDietaryPreferenceDisplay = () => {
+    const options = [
+      { value: 'vegan', label: 'Vegan', emoji: '🌱' },
+      { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
+      { value: 'non-vegetarian', label: 'Non-veg', emoji: '🍗' }
+    ];
+    const option = options.find(opt => opt.value === dietaryPreference);
+    return option ? `${option.emoji} ${option.label}` : '';
+  };
+
+  // Helper function to truncate special request for collapsed view
+  const getTruncatedSpecialRequest = () => {
+    if (!specialRequest) return '';
+    return specialRequest.length > 25 ? `${specialRequest.substring(0, 25)}...` : specialRequest;
+  };
   const generateRecipe = async () => {
     setIsLoading(true);
     setApiError('');
@@ -157,6 +176,8 @@ const Index = () => {
           parsed.imageUrl = data.imageUrl;
         }
         setParsedRecipe(parsed);
+        // Auto-collapse preferences after successful generation
+        setIsPreferencesExpanded(false);
         toast({
           title: "Recipe Generated!",
           description: "Your new recipe is ready to cook."
@@ -261,94 +282,140 @@ const Index = () => {
         )}
 
         {/* Recipe Preferences */}
-        <Card className="mb-6 bg-white shadow-lg rounded-xl border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="w-5 h-5 text-gray-600" />
-              <h3 className="text-lg font-semibold text-gray-800">Recipe Preferences</h3>
-            </div>
-            
-            <div className="space-y-6">
-              {/* Dietary Preference */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Dietary Preference</label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { value: 'vegan', label: 'Vegan', emoji: '🌱' },
-                    { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
-                    { value: 'non-vegetarian', label: 'Non-veg', emoji: '🍗' }
-                  ].map((option) => {
-                    const isSelected = dietaryPreference === option.value;
-                    return (
+        <Card className="mb-6 bg-white shadow-lg rounded-xl border-0 overflow-hidden">
+          <Collapsible open={isPreferencesExpanded} onOpenChange={setIsPreferencesExpanded}>
+            {/* Collapsed Summary View */}
+            {!isPreferencesExpanded && (
+              <div className="p-4 bg-gray-50 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <Filter className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 flex-wrap min-w-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-gray-200">
+                        {getDietaryPreferenceDisplay()}
+                      </span>
+                      <span className="text-gray-400">•</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-gray-200">
+                        {numberOfPeople} {parseInt(numberOfPeople) === 1 ? 'person' : 'people'}
+                      </span>
+                      {specialRequest && (
+                        <>
+                          <span className="text-gray-400">•</span>
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-gray-200 truncate max-w-40">
+                            '{getTruncatedSpecialRequest()}'
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="ml-2 flex-shrink-0 text-gray-600 hover:text-gray-800">
+                      <Edit3 className="w-4 h-4 mr-1" />
+                      Edit
+                      <ChevronDown className="w-4 h-4 ml-1" />
+                    </Button>
+                  </CollapsibleTrigger>
+                </div>
+              </div>
+            )}
+
+            {/* Expanded Full Form */}
+            <CollapsibleContent className="transition-all duration-300 ease-in-out">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Filter className="w-5 h-5 text-gray-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">Recipe Preferences</h3>
+                  <div className="flex-1"></div>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isPreferencesExpanded ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                </div>
+                
+                <div className="space-y-6">
+                  {/* Dietary Preference */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Dietary Preference</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { value: 'vegan', label: 'Vegan', emoji: '🌱' },
+                        { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
+                        { value: 'non-vegetarian', label: 'Non-veg', emoji: '🍗' }
+                      ].map((option) => {
+                        const isSelected = dietaryPreference === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            onClick={() => setDietaryPreference(option.value)}
+                            className={`
+                              inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg
+                              transition-all duration-200 hover:scale-105 active:scale-95 select-none
+                              ${isSelected 
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border border-input'
+                              }
+                            `}
+                          >
+                            <span className="text-base">{option.emoji}</span>
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Number of People */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Number of People</label>
+                    <div className="flex items-center gap-3">
                       <button
-                        key={option.value}
-                        onClick={() => setDietaryPreference(option.value)}
-                        className={`
-                          inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg
-                          transition-all duration-200 hover:scale-105 active:scale-95 select-none
-                          ${isSelected 
-                            ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                            : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border border-input'
-                          }
-                        `}
+                        onClick={() => setNumberOfPeople(Math.max(1, parseInt(numberOfPeople) - 1).toString())}
+                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                        disabled={parseInt(numberOfPeople) <= 1}
                       >
-                        <span className="text-base">{option.emoji}</span>
-                        {option.label}
+                        −
                       </button>
-                    );
-                  })}
+                      <span className="text-lg font-medium min-w-[2rem] text-center">
+                        {numberOfPeople}
+                      </span>
+                      <button
+                        onClick={() => setNumberOfPeople(Math.min(8, parseInt(numberOfPeople) + 1).toString())}
+                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                        disabled={parseInt(numberOfPeople) >= 8}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Number of People */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Number of People</label>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setNumberOfPeople(Math.max(1, parseInt(numberOfPeople) - 1).toString())}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                    disabled={parseInt(numberOfPeople) <= 1}
-                  >
-                    −
-                  </button>
-                  <span className="text-lg font-medium min-w-[2rem] text-center">
-                    {numberOfPeople}
-                  </span>
-                  <button
-                    onClick={() => setNumberOfPeople(Math.min(8, parseInt(numberOfPeople) + 1).toString())}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                    disabled={parseInt(numberOfPeople) >= 8}
-                  >
-                    +
-                  </button>
+                {/* Separator */}
+                <div className="my-6 border-t border-gray-200"></div>
+
+                {/* Special Requests Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    <h4 className="text-lg font-semibold text-gray-800">Anything specific in mind?</h4>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Special Requests (optional)</label>
+                    <Input
+                      value={specialRequest}
+                      onChange={(e) => setSpecialRequest(e.target.value)}
+                      placeholder={placeholders[placeholderIndex]}
+                      className="w-full transition-all duration-300"
+                    />
+                    <p className="text-xs text-gray-500">
+                      Tell us what you're craving, ingredients you want to use, or any specific preferences
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Separator */}
-            <div className="my-6 border-t border-gray-200"></div>
-
-            {/* Special Requests Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600" />
-                <h4 className="text-lg font-semibold text-gray-800">Anything specific in mind?</h4>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Special Requests (optional)</label>
-                <Input
-                  value={specialRequest}
-                  onChange={(e) => setSpecialRequest(e.target.value)}
-                  placeholder={placeholders[placeholderIndex]}
-                  className="w-full transition-all duration-300"
-                />
-                <p className="text-xs text-gray-500">
-                  Tell us what you're craving, ingredients you want to use, or any specific preferences
-                </p>
-              </div>
-            </div>
-          </CardContent>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
         </Card>
 
         {/* Generate Recipe Section */}
