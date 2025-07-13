@@ -84,7 +84,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-            <ChefHat className="w-6 h-6 text-primary-foreground" />
+            <span className="text-2xl">🍉</span>
           </div>
           <div>
             <CardTitle className="text-2xl">Welcome to Melon Farms</CardTitle>
