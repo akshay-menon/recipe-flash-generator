@@ -422,7 +422,7 @@ Format your response exactly like the original recipe format.`;
             <Link to="/auth">
               <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 h-10 gap-2 font-medium rounded-lg shadow-md transition-all duration-300">
                 <span className="text-base">👩‍🍳</span>
-                <span className="hidden sm:inline">Sign in</span>
+                <span>Sign in</span>
               </Button>
             </Link>
           )}
