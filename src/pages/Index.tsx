@@ -135,21 +135,15 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Helper function to get dietary preference display info
-  const getDietaryPreferenceDisplay = () => {
+  // Helper function to get dietary preference emoji only
+  const getDietaryPreferenceEmoji = () => {
     const options = [
-      { value: 'vegan', label: 'Vegan', emoji: '🌱' },
-      { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
-      { value: 'non-vegetarian', label: 'Non-veg', emoji: '🍗' }
+      { value: 'vegan', emoji: '🌱' },
+      { value: 'vegetarian', emoji: '🥬' },
+      { value: 'non-vegetarian', emoji: '🍗' }
     ];
     const option = options.find(opt => opt.value === dietaryPreference);
-    return option ? `${option.emoji} ${option.label}` : '';
-  };
-
-  // Helper function to truncate special request for collapsed view
-  const getTruncatedSpecialRequest = () => {
-    if (!specialRequest) return '';
-    return specialRequest.length > 25 ? `${specialRequest.substring(0, 25)}...` : specialRequest;
+    return option?.emoji || '';
   };
   const generateRecipe = async () => {
     setIsLoading(true);
@@ -286,33 +280,39 @@ const Index = () => {
           <Collapsible open={isPreferencesExpanded} onOpenChange={setIsPreferencesExpanded}>
             {/* Collapsed Summary View */}
             {!isPreferencesExpanded && (
-              <div className="p-4 bg-gray-50 border-b border-gray-200">
+              <div className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Filter className="w-4 h-4 text-gray-600 flex-shrink-0" />
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 flex-wrap min-w-0">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-gray-200">
-                        {getDietaryPreferenceDisplay()}
-                      </span>
-                      <span className="text-gray-400">•</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-gray-200">
-                        {numberOfPeople} {parseInt(numberOfPeople) === 1 ? 'person' : 'people'}
-                      </span>
+                    <Filter className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Dietary Preference Chip - Emoji Only */}
+                      <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full border-2 border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <span className="text-lg">{getDietaryPreferenceEmoji()}</span>
+                      </div>
+                      
+                      {/* Number of People Chip - Number Only */}
+                      <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full border-2 border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <span className="text-sm font-semibold text-gray-700">{numberOfPeople}</span>
+                      </div>
+                      
+                      {/* Special Request Chip - Thinking Emoji Only if Request Exists */}
                       {specialRequest && (
-                        <>
-                          <span className="text-gray-400">•</span>
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-lg border border-gray-200 truncate max-w-40">
-                            '{getTruncatedSpecialRequest()}'
-                          </span>
-                        </>
+                        <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full border-2 border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                          <span className="text-lg">💭</span>
+                        </div>
                       )}
                     </div>
                   </div>
+                  
+                  {/* Edit Button */}
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="ml-2 flex-shrink-0 text-gray-600 hover:text-gray-800">
-                      <Edit3 className="w-4 h-4 mr-1" />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="ml-4 flex-shrink-0 bg-white hover:bg-blue-50 border-2 border-blue-200 text-blue-700 hover:text-blue-800 font-medium shadow-sm hover:shadow-md transition-all duration-200 px-4 py-2"
+                    >
+                      <span className="mr-2">✏️</span>
                       Edit
-                      <ChevronDown className="w-4 h-4 ml-1" />
                     </Button>
                   </CollapsibleTrigger>
                 </div>
