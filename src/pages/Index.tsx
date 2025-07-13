@@ -260,7 +260,7 @@ const Index = () => {
           <ProfileCompletionBanner onDismiss={() => setShowProfileBanner(false)} />
         )}
 
-        {/* Recipe Filters */}
+        {/* Recipe Preferences */}
         <Card className="mb-6 bg-white shadow-lg rounded-xl border-0">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -268,62 +268,85 @@ const Index = () => {
               <h3 className="text-lg font-semibold text-gray-800">Recipe Preferences</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6">
               {/* Dietary Preference */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Dietary Preference</label>
-                <Select value={dietaryPreference} onValueChange={setDietaryPreference}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="non-vegetarian">Non-vegetarian</SelectItem>
-                    <SelectItem value="vegetarian">Vegetarian</SelectItem>
-                    <SelectItem value="vegan">Vegan</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: 'vegetarian', label: 'Vegetarian', emoji: '🥬' },
+                    { value: 'non-vegetarian', label: 'Non-vegetarian', emoji: '🍗' },
+                    { value: 'vegan', label: 'Vegan', emoji: '🌱' }
+                  ].map((option) => {
+                    const isSelected = dietaryPreference === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => setDietaryPreference(option.value)}
+                        className={`
+                          inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg
+                          transition-all duration-200 hover:scale-105 active:scale-95 select-none
+                          ${isSelected 
+                            ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                            : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border border-input'
+                          }
+                        `}
+                      >
+                        <span className="text-base">{option.emoji}</span>
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Number of People */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Number of People</label>
-                <Select value={numberOfPeople} onValueChange={setNumberOfPeople}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 person</SelectItem>
-                    <SelectItem value="2">2 people</SelectItem>
-                    <SelectItem value="3">3 people</SelectItem>
-                    <SelectItem value="4">4 people</SelectItem>
-                    <SelectItem value="5">5 people</SelectItem>
-                    <SelectItem value="6">6 people</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setNumberOfPeople(Math.max(1, parseInt(numberOfPeople) - 1).toString())}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                    disabled={parseInt(numberOfPeople) <= 1}
+                  >
+                    −
+                  </button>
+                  <span className="text-lg font-medium min-w-[2rem] text-center">
+                    {numberOfPeople}
+                  </span>
+                  <button
+                    onClick={() => setNumberOfPeople(Math.min(8, parseInt(numberOfPeople) + 1).toString())}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                    disabled={parseInt(numberOfPeople) >= 8}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Special Requests Section */}
-        <Card className="mb-6 bg-white shadow-lg rounded-xl border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-800">Anything specific in mind?</h3>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Special Requests (optional)</label>
-              <Input
-                value={specialRequest}
-                onChange={(e) => setSpecialRequest(e.target.value)}
-                placeholder={placeholders[placeholderIndex]}
-                className="w-full transition-all duration-300"
-              />
-              <p className="text-xs text-gray-500">
-                Tell us what you're craving, ingredients you want to use, or any specific preferences
-              </p>
+            {/* Separator */}
+            <div className="my-6 border-t border-gray-200"></div>
+
+            {/* Special Requests Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                <h4 className="text-lg font-semibold text-gray-800">Anything specific in mind?</h4>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Special Requests (optional)</label>
+                <Input
+                  value={specialRequest}
+                  onChange={(e) => setSpecialRequest(e.target.value)}
+                  placeholder={placeholders[placeholderIndex]}
+                  className="w-full transition-all duration-300"
+                />
+                <p className="text-xs text-gray-500">
+                  Tell us what you're craving, ingredients you want to use, or any specific preferences
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
