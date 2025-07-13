@@ -418,28 +418,30 @@ const Index = () => {
           </Collapsible>
         </Card>
 
-        {/* Generate Recipe Section */}
-        <Card className="mb-8 bg-white shadow-lg rounded-xl border-0">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <Button onClick={generateRecipe} disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-md transition-all duration-300">
-                {isLoading ? <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Generating Recipe...
-                  </div> : "Generate New Recipe"}
-              </Button>
-              
-              {!user && (
-                <p className="text-sm text-gray-600 mt-4">
-                  <Link to="/auth" className="text-blue-600 hover:underline">
-                    Sign up
-                  </Link>{" "}
-                  to save your favorite recipes and personalize your experience!
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Generate Recipe Section - Only show when no recipe is generated */}
+        {!parsedRecipe && (
+          <Card className="mb-8 bg-white shadow-lg rounded-xl border-0">
+            <CardContent className="p-6">
+              <div className="text-center">
+                <Button onClick={generateRecipe} disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-md transition-all duration-300">
+                  {isLoading ? <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Generating Recipe...
+                    </div> : "Generate New Recipe"}
+                </Button>
+                
+                {!user && (
+                  <p className="text-sm text-gray-600 mt-4">
+                    <Link to="/auth" className="text-blue-600 hover:underline">
+                      Sign up
+                    </Link>{" "}
+                    to save your favorite recipes and personalize your experience!
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Recipe Display */}
         {parsedRecipe && <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
