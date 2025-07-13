@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart, Sparkles, ChevronDown, Edit3, RotateCcw } from 'lucide-react';
+import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart, Sparkles, ChevronDown, Edit3, RotateCcw, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -645,17 +645,33 @@ Format your response exactly like the original recipe format.`;
                     Quick modifications
                   </label>
                 </div>
-                <Input
-                  value={recipeModification}
-                  onChange={(e) => setRecipeModification(e.target.value)}
-                  placeholder={modificationPlaceholders[modificationPlaceholderIndex]}
-                  className="w-full transition-all duration-300"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && recipeModification.trim() && !isModifying) {
-                      modifyRecipe();
-                    }
-                  }}
-                />
+                <div className="relative flex items-center">
+                  <Input
+                    value={recipeModification}
+                    onChange={(e) => setRecipeModification(e.target.value)}
+                    placeholder={modificationPlaceholders[modificationPlaceholderIndex]}
+                    className="w-full pr-12 transition-all duration-300"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && recipeModification.trim() && !isModifying) {
+                        modifyRecipe();
+                      }
+                    }}
+                  />
+                  {recipeModification.trim() && (
+                    <Button
+                      onClick={modifyRecipe}
+                      disabled={isModifying}
+                      className="absolute right-1 h-8 w-8 p-0 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200 shadow-sm hover:shadow-md"
+                      title="Modify Recipe"
+                    >
+                      {isModifying ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </Button>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Request specific modifications to the recipe
                 </p>
