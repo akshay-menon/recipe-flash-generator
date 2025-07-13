@@ -143,14 +143,14 @@ serve(async (req) => {
 
   try {
     const claudeApiKey = Deno.env.get('CLAUDE_API_KEY');
-    const stabilityApiKey = Deno.env.get('STABILITY_API_KEY');
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     
     if (!claudeApiKey) {
       throw new Error('Claude API key not configured');
     }
 
-    if (!stabilityApiKey) {
-      throw new Error('Stability API key not configured');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
     }
 
     // Initialize Supabase client
@@ -226,36 +226,35 @@ serve(async (req) => {
     
     console.log('Generating image for recipe:', recipeName);
 
-    // Generate image with Stability AI
-    const imagePrompt = `Professional food photography of ${recipeName}, appetizing, restaurant quality, well-lit, beautifully plated, high resolution`;
+    // Generate image with OpenAI
+    const imagePrompt = `Professional food photography of ${recipeName}, appetizing, restaurant quality, well-lit, beautifully plated, high resolution, clean white background`;
     
-    const imageResponse = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image', {
+    const imageResponse = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${stabilityApiKey}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
       },
       body: JSON.stringify({
-        text_prompts: [
-          {
-            text: imagePrompt,
-            weight: 1
-          }
-        ],
-        cfg_scale: 7,
-        height: 1024,
-        width: 1024,
-        steps: 30,
-        samples: 1
+        model: 'gpt-image-1',
+        prompt: imagePrompt,
+        n: 1,
+        size: '1024x1024',
+        quality: 'hd',
+        output_format: 'png'
       })
     });
 
     let imageUrl = null;
     if (imageResponse.ok) {
       const imageData = await imageResponse.json();
-      if (imageData.artifacts && imageData.artifacts[0]) {
-        imageUrl = `data:image/png;base64,${imageData.artifacts[0].base64}`;
-        console.log('Image generated successfully');
+      if (imageData.data && imageData.data[0]) {
+        // OpenAI returns a URL, but we need to convert it to base64 for consistent handling
+        const imageUrlFromAPI = imageData.data[0].url;
+        if (imageUrlFromAPI) {
+          imageUrl = imageUrlFromAPI;
+          console.log('Image generated successfully');
+        }
       }
     } else {
       console.error('Image generation failed:', await imageResponse.text());
