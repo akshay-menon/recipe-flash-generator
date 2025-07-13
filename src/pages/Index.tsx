@@ -115,6 +115,9 @@ const Index = () => {
   const [showProfileBanner, setShowProfileBanner] = useState(true);
   const [isPreferencesExpanded, setIsPreferencesExpanded] = useState(true);
   const [recipeModification, setRecipeModification] = useState('');
+  const [modificationPlaceholderIndex, setModificationPlaceholderIndex] = useState(0);
+  const [isModifying, setIsModifying] = useState(false);
+  const [modificationNote, setModificationNote] = useState('');
   const { toast } = useToast();
   const { user, signOut, loading } = useAuth();
   const { isProfileComplete, loading: profileLoading } = useProfileCompletion();
@@ -129,9 +132,25 @@ const Index = () => {
     "Need to use up leftover chicken..."
   ];
 
+  const modificationPlaceholders = [
+    "Swap salmon for cod...",
+    "What can I use instead of sichuan pepper?",
+    "Make this dairy-free...",
+    "Can I use chicken instead of beef?",
+    "I don't have pine nuts...",
+    "Make this spicier..."
+  ];
+
   useEffect(() => {
     const interval = setInterval(() => {
       setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setModificationPlaceholderIndex((prev) => (prev + 1) % modificationPlaceholders.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -235,6 +254,87 @@ const Index = () => {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const modifyRecipe = async () => {
+    if (!recipeModification.trim() || !parsedRecipe) return;
+
+    setIsModifying(true);
+    try {
+      const modificationPrompt = `You are a culinary expert. Please make ONLY the specific modification requested to this recipe. Keep everything else exactly the same unless the change requires essential adjustments.
+
+CURRENT RECIPE:
+**Recipe Name:** ${parsedRecipe.name}
+**Cooking Time:** ${parsedRecipe.cookingTime}
+**Ingredients:**
+${parsedRecipe.ingredients.map(ing => `- ${ing}`).join('\n')}
+**Instructions:**
+${parsedRecipe.instructions.map((inst, i) => `${i + 1}. ${inst}`).join('\n')}
+**Serves:** ${parsedRecipe.serves}
+
+MODIFICATION REQUEST: ${recipeModification}
+
+IMPORTANT RULES:
+- Make ONLY the specific change requested
+- Keep the same cooking method unless the change requires it
+- Preserve other ingredients unless they conflict with the modification
+- Only adjust cooking time if the modification requires it
+- Keep the same serving size
+- Maintain the same recipe structure and format
+- For ingredient swaps: only change that ingredient and adjust method if needed
+- For missing ingredients: suggest substitutes without changing the whole recipe
+- For dietary modifications: make minimal changes to accommodate the restriction
+
+Please provide the modified recipe in the exact same format, and at the end add:
+**What was modified:** [Brief description of what changed]
+
+Format your response exactly like the original recipe format.`;
+
+      const { data, error } = await supabase.functions.invoke('generate-recipe', {
+        body: {
+          dietaryPreference: 'custom',
+          numberOfPeople: parsedRecipe.serves.match(/\d+/)?.[0] || '2',
+          specialRequest: modificationPrompt,
+          userId: user?.id
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to modify recipe');
+      }
+
+      if (data?.recipe) {
+        const parsed = parseRecipeResponse(data.recipe);
+        if (data?.imageUrl) {
+          parsed.imageUrl = data.imageUrl;
+        }
+        
+        // Extract modification note
+        const modificationMatch = data.recipe.match(/\*\*What was modified:\*\*\s*(.+)/i);
+        if (modificationMatch) {
+          setModificationNote(modificationMatch[1].trim());
+        }
+        
+        setParsedRecipe(parsed);
+        setRecipeModification('');
+        
+        toast({
+          title: "Recipe Modified!",
+          description: "Your recipe has been updated with the requested changes."
+        });
+      } else {
+        throw new Error('No modified recipe data received');
+      }
+    } catch (error) {
+      console.error('Recipe modification failed:', error);
+      toast({
+        title: "Modification Failed",
+        description: "Sorry, we couldn't modify the recipe right now.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsModifying(false);
     }
   };
   if (loading) {
@@ -448,6 +548,12 @@ const Index = () => {
         {parsedRecipe && <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
               <h2 className="text-3xl font-bold mb-2">{parsedRecipe.name}</h2>
+              {modificationNote && (
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium mb-3">
+                  <span>✨</span>
+                  <span>Modified: {modificationNote}</span>
+                </div>
+              )}
               <div className="flex items-center space-x-6 text-blue-100">
                 <div className="flex items-center">
                   <Clock className="w-5 h-5 mr-2" />
@@ -533,14 +639,22 @@ const Index = () => {
             <div className="p-6 border-t border-gray-200 bg-gray-50">
               {/* Recipe Modification Input */}
               <div className="mb-6">
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Any changes needed?
-                </label>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">✨</span>
+                  <label className="text-sm font-medium text-gray-700">
+                    Quick modifications
+                  </label>
+                </div>
                 <Input
                   value={recipeModification}
                   onChange={(e) => setRecipeModification(e.target.value)}
-                  placeholder="e.g., swap trout for salmon, what can I use instead of sichuan pepper?"
+                  placeholder={modificationPlaceholders[modificationPlaceholderIndex]}
                   className="w-full transition-all duration-300"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && recipeModification.trim() && !isModifying) {
+                      modifyRecipe();
+                    }
+                  }}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Request specific modifications to the recipe
