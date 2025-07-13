@@ -708,7 +708,7 @@ Format your response exactly like the original recipe format.`;
                       <RotateCcw className="w-6 h-6" />
                     )}
                   </Button>
-                  <span className="text-xs text-gray-600 mt-2 font-medium">New Recipe</span>
+                  <span className="text-xs text-gray-600 mt-2 font-medium">Fresh Recipe</span>
                 </div>
               </div>
               
