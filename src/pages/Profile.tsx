@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ChefHat, Globe } from 'lucide-react';
+import { Loader2, ChefHat, Globe, User } from 'lucide-react';
 
 const KITCHEN_EQUIPMENT = [
   'Oven',
@@ -40,6 +41,8 @@ const Profile = () => {
   useEffect(() => {
     if (user) {
       fetchProfile();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -128,6 +131,23 @@ const Profile = () => {
         : [...prev.preferred_cuisines, cuisine]
     }));
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50 flex items-center justify-center">
+        <Card className="p-8 text-center">
+          <CardContent>
+            <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Sign In Required</h2>
+            <p className="text-gray-600 mb-6">You need to sign in to view and edit your profile.</p>
+            <Link to="/auth">
+              <Button>Sign In</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
