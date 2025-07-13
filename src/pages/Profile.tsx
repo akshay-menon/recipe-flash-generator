@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Loader2, ChefHat, Globe, User, Check } from 'lucide-react';
 
 const KITCHEN_EQUIPMENT = [
@@ -20,11 +21,12 @@ const KITCHEN_EQUIPMENT = [
 ];
 
 const CUISINE_OPTIONS = [
-  'Italian',
-  'Mexican',
-  'Indian',
-  'Asian',
-  'Mediterranean'
+  { name: 'Italian', icon: '🍝', description: 'Pasta, risotto, simple proteins with herbs' },
+  { name: 'Asian', icon: '🥢', description: 'Stir-fries, noodles, rice bowls, fresh ingredients' },
+  { name: 'Mexican', icon: '🌮', description: 'Tacos, burritos, beans, spiced proteins' },
+  { name: 'Mediterranean', icon: '🫒', description: 'Olive oil, fresh vegetables, grilled meats' },
+  { name: 'American', icon: '🍔', description: 'Comfort foods, grilled meats, hearty sides' },
+  { name: 'Indian', icon: '🍛', description: 'Curries, rice dishes, aromatic spices' }
 ];
 
 
@@ -38,6 +40,7 @@ const Preferences = () => {
     preferred_cuisines: [] as string[],
     additional_context: ''
   });
+  const [selectedCuisineForDescription, setSelectedCuisineForDescription] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -123,13 +126,23 @@ const Preferences = () => {
     }));
   };
 
-  const toggleCuisine = (cuisine: string) => {
+  const toggleCuisine = (cuisineName: string) => {
     setProfile(prev => ({
       ...prev,
-      preferred_cuisines: prev.preferred_cuisines.includes(cuisine)
-        ? prev.preferred_cuisines.filter(item => item !== cuisine)
-        : [...prev.preferred_cuisines, cuisine]
+      preferred_cuisines: prev.preferred_cuisines.includes(cuisineName)
+        ? prev.preferred_cuisines.filter(item => item !== cuisineName)
+        : [...prev.preferred_cuisines, cuisineName]
     }));
+  };
+
+  const handleCuisineClick = (cuisineName: string) => {
+    toggleCuisine(cuisineName);
+    // Toggle description for mobile
+    if (window.innerWidth < 768) {
+      setSelectedCuisineForDescription(
+        selectedCuisineForDescription === cuisineName ? null : cuisineName
+      );
+    }
   };
 
 
@@ -222,18 +235,50 @@ const Preferences = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {CUISINE_OPTIONS.map((cuisine) => (
-                  <Button
-                    key={cuisine}
-                    variant={profile.preferred_cuisines.includes(cuisine) ? "default" : "outline"}
-                    onClick={() => toggleCuisine(cuisine)}
-                    className="h-auto py-3"
-                  >
-                    {cuisine}
-                  </Button>
-                ))}
-              </div>
+              <TooltipProvider>
+                <div className="flex flex-wrap gap-2">
+                  {CUISINE_OPTIONS.map((cuisine) => {
+                    const isSelected = profile.preferred_cuisines.includes(cuisine.name);
+                    return (
+                      <Tooltip key={cuisine.name}>
+                        <TooltipTrigger asChild>
+                          <Badge
+                            variant={isSelected ? "default" : "outline"}
+                            className={`
+                              cursor-pointer transition-all duration-200 px-3 py-2 text-sm font-medium
+                              hover:scale-105 active:scale-95 select-none
+                              ${isSelected 
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-input'
+                              }
+                            `}
+                            onClick={() => handleCuisineClick(cuisine.name)}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <span className="text-base">{cuisine.icon}</span>
+                              {isSelected && <Check className="h-3 w-3" />}
+                              {cuisine.name}
+                            </span>
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="hidden md:block">
+                          <p className="text-sm">{cuisine.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              </TooltipProvider>
+              
+              {/* Mobile descriptions */}
+              {selectedCuisineForDescription && (
+                <div className="mt-3 md:hidden">
+                  <div className="text-sm text-muted-foreground p-3 bg-muted rounded-lg">
+                    <strong>{selectedCuisineForDescription}:</strong>{' '}
+                    {CUISINE_OPTIONS.find(c => c.name === selectedCuisineForDescription)?.description}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
