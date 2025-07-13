@@ -19,6 +19,7 @@ export type Database = {
           additional_context: string | null
           cooking_experience: string | null
           created_at: string
+          dietary_restrictions: string | null
           email: string | null
           id: string
           kitchen_equipment: Json | null
@@ -33,6 +34,7 @@ export type Database = {
           additional_context?: string | null
           cooking_experience?: string | null
           created_at?: string
+          dietary_restrictions?: string | null
           email?: string | null
           id?: string
           kitchen_equipment?: Json | null
@@ -47,6 +49,7 @@ export type Database = {
           additional_context?: string | null
           cooking_experience?: string | null
           created_at?: string
+          dietary_restrictions?: string | null
           email?: string | null
           id?: string
           kitchen_equipment?: Json | null

@@ -88,6 +88,7 @@ const Preferences = () => {
           preferred_cuisines: Array.isArray(data.preferred_cuisines) ? data.preferred_cuisines.filter((item): item is string => typeof item === 'string') : [],
           cooking_experience: data.cooking_experience || '',
           protein_preferences: Array.isArray(data.protein_preferences) ? data.protein_preferences.filter((item): item is string => typeof item === 'string') : [],
+          dietary_restrictions: data.dietary_restrictions || '',
           additional_context: data.additional_context || ''
         });
       }
@@ -117,6 +118,7 @@ const Preferences = () => {
           preferred_cuisines: profile.preferred_cuisines,
           cooking_experience: profile.cooking_experience,
           protein_preferences: profile.protein_preferences,
+          dietary_restrictions: profile.dietary_restrictions,
           additional_context: profile.additional_context,
           updated_at: new Date().toISOString()
         }, {
@@ -369,6 +371,26 @@ const Preferences = () => {
                   );
                 })}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Dietary Restrictions & Dislikes Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Dietary Restrictions & Dislikes</CardTitle>
+              <CardDescription>
+                Any allergies, dietary restrictions, or ingredients you prefer to avoid?
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Label htmlFor="dietary-restrictions">Dietary Restrictions & Dislikes</Label>
+              <Textarea
+                id="dietary-restrictions"
+                value={profile.dietary_restrictions}
+                onChange={(e) => setProfile(prev => ({ ...prev, dietary_restrictions: e.target.value }))}
+                placeholder="e.g., Allergic to peanuts, no dairy, I hate brussels sprouts, vegetarian on weekdays"
+                className="mt-2 min-h-[100px]"
+              />
             </CardContent>
           </Card>
 
