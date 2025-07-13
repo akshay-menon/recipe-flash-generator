@@ -26,6 +26,10 @@ const CUISINE_OPTIONS = [
   'Mediterranean'
 ];
 
+const EMOJI_OPTIONS = [
+  '👨‍🍳', '👩‍🍳', '🧑‍🍳', '😊', '😄', '🤓', '🥳', '🍳', '🍽️', '🥗', '🍕', '🍜', '🥘', '🍲', '🥟', '🍱'
+];
+
 const Profile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -35,7 +39,8 @@ const Profile = () => {
     name: '',
     kitchen_equipment: [] as string[],
     preferred_cuisines: [] as string[],
-    additional_context: ''
+    additional_context: '',
+    profile_emoji: '👨‍🍳'
   });
 
   useEffect(() => {
@@ -63,7 +68,8 @@ const Profile = () => {
           name: data.name || '',
           kitchen_equipment: Array.isArray(data.kitchen_equipment) ? data.kitchen_equipment.filter((item): item is string => typeof item === 'string') : [],
           preferred_cuisines: Array.isArray(data.preferred_cuisines) ? data.preferred_cuisines.filter((item): item is string => typeof item === 'string') : [],
-          additional_context: data.additional_context || ''
+          additional_context: data.additional_context || '',
+          profile_emoji: data.profile_emoji || '👨‍🍳'
         });
       }
     } catch (error) {
@@ -91,7 +97,8 @@ const Profile = () => {
           name: profile.name,
           kitchen_equipment: profile.kitchen_equipment,
           preferred_cuisines: profile.preferred_cuisines,
-          additional_context: profile.additional_context
+          additional_context: profile.additional_context,
+          profile_emoji: profile.profile_emoji
         }, {
           onConflict: 'user_id'
         });
@@ -130,6 +137,15 @@ const Profile = () => {
         ? prev.preferred_cuisines.filter(item => item !== cuisine)
         : [...prev.preferred_cuisines, cuisine]
     }));
+  };
+
+  const generateRandomEmoji = () => {
+    const randomIndex = Math.floor(Math.random() * EMOJI_OPTIONS.length);
+    setProfile(prev => ({ ...prev, profile_emoji: EMOJI_OPTIONS[randomIndex] }));
+  };
+
+  const selectEmoji = (emoji: string) => {
+    setProfile(prev => ({ ...prev, profile_emoji: emoji }));
   };
 
   if (!user) {
@@ -185,6 +201,42 @@ const Profile = () => {
                 placeholder="Enter your name"
                 className="mt-2"
               />
+            </CardContent>
+          </Card>
+
+          {/* Profile Picture Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Picture</CardTitle>
+              <CardDescription>
+                Choose an emoji to represent you
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center space-y-4">
+                <div className="text-6xl">{profile.profile_emoji}</div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={generateRandomEmoji}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Random
+                  </Button>
+                </div>
+                <div className="grid grid-cols-8 gap-2 w-full max-w-md">
+                  {EMOJI_OPTIONS.map((emoji) => (
+                    <Button
+                      key={emoji}
+                      variant={profile.profile_emoji === emoji ? "default" : "outline"}
+                      onClick={() => selectEmoji(emoji)}
+                      className="text-2xl h-12 p-0"
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </CardContent>
           </Card>
 

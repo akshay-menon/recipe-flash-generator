@@ -23,6 +23,7 @@ export type Database = {
           kitchen_equipment: Json | null
           name: string | null
           preferred_cuisines: Json | null
+          profile_emoji: string | null
           updated_at: string
           user_id: string
         }
@@ -34,6 +35,7 @@ export type Database = {
           kitchen_equipment?: Json | null
           name?: string | null
           preferred_cuisines?: Json | null
+          profile_emoji?: string | null
           updated_at?: string
           user_id: string
         }
@@ -45,6 +47,7 @@ export type Database = {
           kitchen_equipment?: Json | null
           name?: string | null
           preferred_cuisines?: Json | null
+          profile_emoji?: string | null
           updated_at?: string
           user_id?: string
         }
