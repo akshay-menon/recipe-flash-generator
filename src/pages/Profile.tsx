@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ChefHat, Globe, User } from 'lucide-react';
+import { Loader2, ChefHat, Globe, User, Check } from 'lucide-react';
 
 const KITCHEN_EQUIPMENT = [
   'Oven',
@@ -181,17 +182,30 @@ const Preferences = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {KITCHEN_EQUIPMENT.map((equipment) => (
-                  <Button
-                    key={equipment}
-                    variant={profile.kitchen_equipment.includes(equipment) ? "default" : "outline"}
-                    onClick={() => toggleEquipment(equipment)}
-                    className="h-auto py-3"
-                  >
-                    {equipment}
-                  </Button>
-                ))}
+              <div className="flex flex-wrap gap-2">
+                {KITCHEN_EQUIPMENT.map((equipment) => {
+                  const isSelected = profile.kitchen_equipment.includes(equipment);
+                  return (
+                    <Badge
+                      key={equipment}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`
+                        cursor-pointer transition-all duration-200 px-3 py-2 text-sm font-medium
+                        hover:scale-105 active:scale-95 select-none
+                        ${isSelected 
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                          : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-input'
+                        }
+                      `}
+                      onClick={() => toggleEquipment(equipment)}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        {isSelected && <Check className="h-3 w-3" />}
+                        {equipment}
+                      </span>
+                    </Badge>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
