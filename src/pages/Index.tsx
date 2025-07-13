@@ -399,6 +399,35 @@ Format your response exactly like the original recipe format.`;
   return <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
+        <header className="flex justify-end p-4 mb-4">
+          {user ? (
+            <div>
+              <div className="flex items-center gap-4">
+                <Link to="/saved-recipes" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-primary transition-colors">
+                  <BookOpen className="w-4 h-4" />
+                  <span className="hidden sm:inline font-medium">Saved</span>
+                </Link>
+                <Button 
+                  onClick={signOut} 
+                  variant="ghost" 
+                  size="sm"
+                  className="flex items-center gap-2 text-gray-700 hover:text-destructive transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Link to="/auth">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-4 py-2 gap-2 font-medium">
+                <span className="text-base">👤</span>
+                <span className="hidden sm:inline">Sign in</span>
+              </Button>
+            </Link>
+          )}
+        </header>
+
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 leading-tight px-4">
@@ -408,18 +437,6 @@ Format your response exactly like the original recipe format.`;
           <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-lg mx-auto px-4">
             AI recipes that fit your life and taste
           </p>
-          
-          {/* User Status */}
-          {!user && (
-            <div className="flex items-center justify-center gap-4 mt-6">
-              <Link to="/auth">
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Sign In / Sign Up
-                </Button>
-              </Link>
-            </div>
-          )}
         </div>
 
         {/* Profile Completion Banner */}
