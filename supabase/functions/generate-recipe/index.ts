@@ -18,16 +18,43 @@ const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeop
   };
   const dietaryConstraint = dietaryMap[dietaryPreference];
   
-  // Build user preferences section
+  // Build comprehensive user preferences section
   let preferencesSection = '';
+  
+  // Kitchen Equipment
   if (userPreferences.kitchenEquipment && userPreferences.kitchenEquipment.length > 0) {
     preferencesSection += `\n- Available kitchen equipment: ${userPreferences.kitchenEquipment.join(', ')}`;
   }
+  
+  // Cooking Experience
+  if (userPreferences.cookingExperience) {
+    const experienceMap = {
+      'Beginner': 'simple recipes with basic techniques and detailed instructions',
+      'Intermediate': 'comfortable with most cooking methods, can handle multi-step recipes',
+      'Advanced': 'experienced cook, enjoys complex techniques and minimal hand-holding'
+    };
+    const experienceDescription = experienceMap[userPreferences.cookingExperience] || userPreferences.cookingExperience;
+    preferencesSection += `\n- Cooking experience: ${userPreferences.cookingExperience} (${experienceDescription})`;
+  }
+  
+  // Dietary Restrictions from preferences page (in addition to main page dietary preference)
+  if (userPreferences.dietaryRestrictions && userPreferences.dietaryRestrictions.trim()) {
+    preferencesSection += `\n- Additional dietary restrictions and dislikes: ${userPreferences.dietaryRestrictions}`;
+  }
+  
+  // Protein Preferences
+  if (userPreferences.proteinPreferences && userPreferences.proteinPreferences.length > 0) {
+    preferencesSection += `\n- Preferred proteins: ${userPreferences.proteinPreferences.join(', ')}`;
+  }
+  
+  // Cuisine Preferences
   if (userPreferences.preferredCuisines && userPreferences.preferredCuisines.length > 0) {
     preferencesSection += `\n- Preferred cuisines: ${userPreferences.preferredCuisines.join(', ')}`;
   }
-  if (userPreferences.additionalContext) {
-    preferencesSection += `\n- Additional preferences: ${userPreferences.additionalContext}`;
+  
+  // Additional Context (Tell us more)
+  if (userPreferences.additionalContext && userPreferences.additionalContext.trim()) {
+    preferencesSection += `\n- Additional preferences and context: ${userPreferences.additionalContext}`;
   }
   
   // Add special request section
@@ -37,7 +64,7 @@ const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeop
 Please incorporate this request into the recipe while maintaining the other constraints.`;
   }
   
-  return `Generate a delicious dinner recipe that takes into account the user's preferences and dietary needs. Create a creative and flavorful dish.${specialRequestSection}
+  return `Generate a delicious dinner recipe that takes into account the user's preferences and dietary needs. Create a creative and flavorful dish that matches their cooking experience level and available equipment.${specialRequestSection}
 
 Session ID: ${timestamp}
 
@@ -110,7 +137,7 @@ serve(async (req) => {
       try {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('kitchen_equipment, preferred_cuisines, additional_context')
+          .select('kitchen_equipment, preferred_cuisines, additional_context, cooking_experience, dietary_restrictions, protein_preferences')
           .eq('user_id', userId)
           .single();
         
@@ -118,7 +145,10 @@ serve(async (req) => {
           userPreferences = {
             kitchenEquipment: profile.kitchen_equipment || [],
             preferredCuisines: profile.preferred_cuisines || [],
-            additionalContext: profile.additional_context
+            additionalContext: profile.additional_context,
+            cookingExperience: profile.cooking_experience,
+            dietaryRestrictions: profile.dietary_restrictions,
+            proteinPreferences: profile.protein_preferences || []
           };
         }
       } catch (error) {
