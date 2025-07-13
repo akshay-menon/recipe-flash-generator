@@ -274,9 +274,9 @@ const Index = () => {
                 <label className="text-sm font-medium text-gray-700">Dietary Preference</label>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { value: 'vegetarian', label: 'Vegetarian', emoji: '🥬' },
-                    { value: 'non-vegetarian', label: 'Non-vegetarian', emoji: '🍗' },
-                    { value: 'vegan', label: 'Vegan', emoji: '🌱' }
+                    { value: 'vegan', label: 'Vegan', emoji: '🌱' },
+                    { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
+                    { value: 'non-vegetarian', label: 'Non-veg', emoji: '🍗' }
                   ].map((option) => {
                     const isSelected = dietaryPreference === option.value;
                     return (
