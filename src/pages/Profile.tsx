@@ -200,7 +200,7 @@ const Preferences = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="p-8 text-center">
           <CardContent>
             <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />

@@ -348,7 +348,7 @@ Format your response exactly like the original recipe format.`;
     );
   }
 
-  return <div className="bg-gradient-to-br from-orange-50 via-white to-green-50">
+  return <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">

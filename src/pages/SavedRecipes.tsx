@@ -96,7 +96,7 @@ const SavedRecipes = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="p-8 text-center">
           <CardContent>
             <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -113,7 +113,7 @@ const SavedRecipes = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <ChefHat className="w-12 h-12 text-orange-600 mx-auto animate-pulse" />
           <p className="text-gray-600">Loading saved recipes...</p>
@@ -123,7 +123,7 @@ const SavedRecipes = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-center mb-8">
