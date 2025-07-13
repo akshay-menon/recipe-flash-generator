@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Clock, Users, ChefHat, Filter, LogOut, User, BookOpen, Heart, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -107,11 +108,30 @@ const Index = () => {
   const [parsedRecipe, setParsedRecipe] = useState<any>(null);
   const [dietaryPreference, setDietaryPreference] = useState('non-vegetarian');
   const [numberOfPeople, setNumberOfPeople] = useState('2');
+  const [specialRequest, setSpecialRequest] = useState('');
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [showProfileBanner, setShowProfileBanner] = useState(true);
   const { toast } = useToast();
   const { user, signOut, loading } = useAuth();
   const { isProfileComplete, loading: profileLoading } = useProfileCompletion();
+
+  const placeholders = [
+    "I feel like pasta tonight...",
+    "I have salmon in my fridge to use up...",
+    "Something quick and easy...",
+    "Craving something spicy...",
+    "Looking for comfort food...",
+    "Want to try something new...",
+    "Need to use up leftover chicken..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
   const generateRecipe = async () => {
     setIsLoading(true);
     setApiError('');
@@ -124,6 +144,7 @@ const Index = () => {
         body: {
           dietaryPreference,
           numberOfPeople,
+          specialRequest,
           userId: user?.id
         }
       });
@@ -280,6 +301,29 @@ const Index = () => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Special Requests Section */}
+        <Card className="mb-6 bg-white shadow-lg rounded-xl border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-gray-800">Anything specific in mind?</h3>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Special Requests (optional)</label>
+              <Input
+                value={specialRequest}
+                onChange={(e) => setSpecialRequest(e.target.value)}
+                placeholder={placeholders[placeholderIndex]}
+                className="w-full transition-all duration-300"
+              />
+              <p className="text-xs text-gray-500">
+                Tell us what you're craving, ingredients you want to use, or any specific preferences
+              </p>
             </div>
           </CardContent>
         </Card>

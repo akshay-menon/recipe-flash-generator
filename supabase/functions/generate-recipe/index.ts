@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeople = '2', userPreferences = {}) => {
+const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeople = '2', specialRequest = '', userPreferences = {}) => {
   const timestamp = Date.now();
   
   // Convert dietary preference for prompt
@@ -30,7 +30,14 @@ const generateRecipePrompt = (dietaryPreference = 'non-vegetarian', numberOfPeop
     preferencesSection += `\n- Additional preferences: ${userPreferences.additionalContext}`;
   }
   
-  return `Generate a delicious dinner recipe that takes into account the user's preferences and dietary needs. Create a creative and flavorful dish.
+  // Add special request section
+  let specialRequestSection = '';
+  if (specialRequest && specialRequest.trim()) {
+    specialRequestSection = `\n\nSPECIAL REQUEST: ${specialRequest.trim()}
+Please incorporate this request into the recipe while maintaining the other constraints.`;
+  }
+  
+  return `Generate a delicious dinner recipe that takes into account the user's preferences and dietary needs. Create a creative and flavorful dish.${specialRequestSection}
 
 Session ID: ${timestamp}
 
@@ -95,7 +102,7 @@ serve(async (req) => {
 
     // Read filter parameters from request body
     const requestBody = await req.json().catch(() => ({}));
-    const { dietaryPreference, numberOfPeople, userId } = requestBody;
+    const { dietaryPreference, numberOfPeople, specialRequest, userId } = requestBody;
 
     // Fetch user preferences if userId is provided
     let userPreferences = {};
@@ -122,7 +129,7 @@ serve(async (req) => {
     console.log('Generating recipe with Claude API...');
     console.log('Filter parameters:', { dietaryPreference, numberOfPeople, userPreferences });
 
-    const dynamicPrompt = generateRecipePrompt(dietaryPreference, numberOfPeople, userPreferences);
+    const dynamicPrompt = generateRecipePrompt(dietaryPreference, numberOfPeople, specialRequest, userPreferences);
     console.log('Generated personalized prompt with user preferences');
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
