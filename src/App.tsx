@@ -6,7 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import SavedRecipes from "./pages/SavedRecipes";
-import Profile from "./pages/Profile";
+import Preferences from "./pages/Profile";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthContext";
 import BottomNavigation from "./components/BottomNavigation";
@@ -27,7 +28,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/saved-recipes" element={<SavedRecipes />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/preferences" element={<Preferences />} />
+              <Route path="/profile" element={<ProfilePage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

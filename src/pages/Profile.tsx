@@ -26,21 +26,16 @@ const CUISINE_OPTIONS = [
   'Mediterranean'
 ];
 
-const EMOJI_OPTIONS = [
-  '👨‍🍳', '👩‍🍳', '🧑‍🍳', '😊', '😄', '🤓', '🥳', '🍳', '🍽️', '🥗', '🍕', '🍜', '🥘', '🍲', '🥟', '🍱'
-];
 
-const Profile = () => {
+const Preferences = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
-    name: '',
     kitchen_equipment: [] as string[],
     preferred_cuisines: [] as string[],
-    additional_context: '',
-    profile_emoji: '👨‍🍳'
+    additional_context: ''
   });
 
   useEffect(() => {
@@ -55,7 +50,7 @@ const Profile = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('kitchen_equipment, preferred_cuisines, additional_context')
         .eq('user_id', user?.id)
         .single();
 
@@ -65,11 +60,9 @@ const Profile = () => {
 
       if (data) {
         setProfile({
-          name: data.name || '',
           kitchen_equipment: Array.isArray(data.kitchen_equipment) ? data.kitchen_equipment.filter((item): item is string => typeof item === 'string') : [],
           preferred_cuisines: Array.isArray(data.preferred_cuisines) ? data.preferred_cuisines.filter((item): item is string => typeof item === 'string') : [],
-          additional_context: data.additional_context || '',
-          profile_emoji: data.profile_emoji || '👨‍🍳'
+          additional_context: data.additional_context || ''
         });
       }
     } catch (error) {
@@ -94,11 +87,10 @@ const Profile = () => {
         .upsert({
           user_id: user.id,
           email: user.email,
-          name: profile.name,
           kitchen_equipment: profile.kitchen_equipment,
           preferred_cuisines: profile.preferred_cuisines,
           additional_context: profile.additional_context,
-          profile_emoji: profile.profile_emoji
+          updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'
         });
@@ -139,14 +131,6 @@ const Profile = () => {
     }));
   };
 
-  const generateRandomEmoji = () => {
-    const randomIndex = Math.floor(Math.random() * EMOJI_OPTIONS.length);
-    setProfile(prev => ({ ...prev, profile_emoji: EMOJI_OPTIONS[randomIndex] }));
-  };
-
-  const selectEmoji = (emoji: string) => {
-    setProfile(prev => ({ ...prev, profile_emoji: emoji }));
-  };
 
   if (!user) {
     return (
@@ -177,68 +161,13 @@ const Profile = () => {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">Your Profile</h1>
+          <h1 className="text-4xl font-bold text-primary mb-2">Preferences</h1>
           <p className="text-muted-foreground">
-            Tell us about yourself to get more personalized recipes
+            Tell us about your cooking preferences
           </p>
         </div>
 
         <div className="space-y-6">
-          {/* Name Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Name</CardTitle>
-              <CardDescription>
-                How would you like us to address you?
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={profile.name}
-                onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter your name"
-                className="mt-2"
-              />
-            </CardContent>
-          </Card>
-
-          {/* Profile Picture Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Picture</CardTitle>
-              <CardDescription>
-                Choose an emoji to represent you
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center space-y-4">
-                <div className="text-6xl">{profile.profile_emoji}</div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={generateRandomEmoji}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Random
-                  </Button>
-                </div>
-                <div className="grid grid-cols-8 gap-2 w-full max-w-md">
-                  {EMOJI_OPTIONS.map((emoji) => (
-                    <Button
-                      key={emoji}
-                      variant={profile.profile_emoji === emoji ? "default" : "outline"}
-                      onClick={() => selectEmoji(emoji)}
-                      className="text-2xl h-12 p-0"
-                    >
-                      {emoji}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Kitchen Equipment Section */}
           <Card>
@@ -327,7 +256,7 @@ const Profile = () => {
                 Saving...
               </>
             ) : (
-              'Save Profile'
+              'Save Preferences'
             )}
           </Button>
         </div>
@@ -336,4 +265,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Preferences;

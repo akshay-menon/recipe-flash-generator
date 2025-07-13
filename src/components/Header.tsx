@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -54,6 +55,12 @@ const Header = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem asChild>
+            <Link to="/profile" className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              Profile
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={signOut} className="flex items-center gap-2 text-destructive focus:text-destructive">
             <LogOut className="w-4 h-4" />
             Sign Out
