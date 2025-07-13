@@ -747,10 +747,12 @@ Format your response exactly like the original recipe format.`;
           </Card>}
 
 
-        {/* Footer */}
-        <div className="text-center mt-12 text-gray-500">
-          <p>Happy cooking! 👨‍🍳</p>
-        </div>
+        {/* Footer - Only show after recipe is generated */}
+        {parsedRecipe && (
+          <div className="text-center mt-12 text-gray-500">
+            <p>Happy cooking! 👨‍🍳</p>
+          </div>
+        )}
       </div>
     </div>;
 };
