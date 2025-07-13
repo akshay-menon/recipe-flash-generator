@@ -87,7 +87,7 @@ const Auth = () => {
             <ChefHat className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl">Welcome to Recipe Generator</CardTitle>
+            <CardTitle className="text-2xl">Welcome to Melon Farms</CardTitle>
             <CardDescription>
               Sign in or create an account to save your favorite recipes
             </CardDescription>
