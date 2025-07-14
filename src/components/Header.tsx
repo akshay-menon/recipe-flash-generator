@@ -48,7 +48,7 @@ const Header = () => {
       </div>
 
       {/* Profile Dropdown - only show when user is logged in */}
-      {user && (
+      {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -73,6 +73,10 @@ const Header = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      ) : (
+        <Button asChild>
+          <Link to="/auth">Sign in</Link>
+        </Button>
       )}
     </div>
   );
