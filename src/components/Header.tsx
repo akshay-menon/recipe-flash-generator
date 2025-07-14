@@ -37,36 +37,43 @@ const Header = () => {
     }
   };
 
-  if (!user) return null;
-
-  const displayName = userProfile.name || user.email?.split('@')[0] || 'Chef';
+  const displayName = userProfile.name || user?.email?.split('@')[0] || 'Chef';
 
   return (
-    <div className="flex justify-end p-4">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            className="flex items-center gap-2 hover:bg-accent/50 transition-colors"
-          >
-            <span className="text-lg">{userProfile.emoji}</span>
-            <span className="font-medium">Chef {displayName}</span>
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem asChild>
-            <Link to="/profile" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Profile
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={signOut} className="flex items-center gap-2 text-destructive focus:text-destructive">
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex justify-between items-center p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Logo */}
+      <div className="flex items-center gap-2">
+        <span className="text-xl">🍉</span>
+        <span className="font-semibold text-lg text-foreground">Melon Farms</span>
+      </div>
+
+      {/* Profile Dropdown - only show when user is logged in */}
+      {user && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="flex items-center gap-2 hover:bg-accent/50 transition-colors"
+            >
+              <span className="text-lg">{userProfile.emoji}</span>
+              <span className="font-medium hidden sm:inline">Chef {displayName}</span>
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem asChild>
+              <Link to="/profile" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut} className="flex items-center gap-2 text-destructive focus:text-destructive">
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 };
