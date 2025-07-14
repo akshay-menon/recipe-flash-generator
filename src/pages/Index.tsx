@@ -399,28 +399,28 @@ Format your response exactly like the original recipe format.`;
   return <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
-        <header className="flex justify-end p-4 mb-4">
+        <header className="flex justify-end p-6 mb-8">
           {user ? (
             <div>
               <div className="flex items-center gap-4">
-                <Link to="/saved-recipes" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-primary transition-colors">
-                  <BookOpen className="w-4 h-4" />
+                <Link to="/saved-recipes" className="flex items-center gap-2 px-4 py-3 text-foreground hover:text-primary transition-colors rounded-button hover:bg-muted">
+                  <BookOpen className="w-5 h-5" />
                   <span className="hidden sm:inline font-medium">Saved</span>
                 </Link>
                 <Button 
                   onClick={signOut} 
                   variant="ghost" 
                   size="sm"
-                  className="flex items-center gap-2 text-gray-700 hover:text-destructive transition-colors"
+                  className="flex items-center gap-2 text-foreground hover:text-destructive transition-colors"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-5 h-5" />
                   <span className="hidden sm:inline">Sign Out</span>
                 </Button>
               </div>
             </div>
           ) : (
             <Link to="/auth">
-              <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 h-10 gap-2 font-medium rounded-lg shadow-md transition-all duration-300">
+              <Button className="gap-2">
                 <span className="text-base">👩‍🍳</span>
                 <span>Sign in</span>
               </Button>
@@ -428,13 +428,13 @@ Format your response exactly like the original recipe format.`;
           )}
         </header>
 
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 leading-tight px-4">
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight px-4">
               {getRotatingHeading()}
             </h1>
           </div>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-lg mx-auto px-4">
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             AI recipes that fit your life and taste
           </p>
         </div>
@@ -445,28 +445,28 @@ Format your response exactly like the original recipe format.`;
         )}
 
         {/* Recipe Preferences */}
-        <Card className="mb-6 bg-white shadow-lg rounded-xl border-0 overflow-hidden">
+        <Card className="mb-8 overflow-hidden">
           <Collapsible open={isPreferencesExpanded} onOpenChange={setIsPreferencesExpanded}>
             {/* Collapsed Summary View */}
             {!isPreferencesExpanded && (
-              <div className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 shadow-sm">
+              <div className="p-6 bg-gradient-to-r from-muted to-accent/10 border-b border-border">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Filter className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <Filter className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                     <div className="flex items-center gap-3 min-w-0">
                       {/* Dietary Preference Chip - Emoji Only */}
-                      <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full border-2 border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                      <div className="flex items-center justify-center w-12 h-12 bg-card rounded-card border-2 border-border shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
                         <span className="text-lg">{getDietaryPreferenceEmoji()}</span>
                       </div>
                       
                       {/* Number of People Chip - Number Only */}
-                      <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full border-2 border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                        <span className="text-sm font-semibold text-gray-700">{numberOfPeople}</span>
+                      <div className="flex items-center justify-center w-12 h-12 bg-card rounded-card border-2 border-border shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
+                        <span className="text-sm font-semibold text-foreground">{numberOfPeople}</span>
                       </div>
                       
                       {/* Special Request Chip - Thinking Emoji Only if Request Exists */}
                       {specialRequest && (
-                        <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full border-2 border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <div className="flex items-center justify-center w-12 h-12 bg-card rounded-card border-2 border-border shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
                           <span className="text-lg">💭</span>
                         </div>
                       )}
@@ -476,9 +476,9 @@ Format your response exactly like the original recipe format.`;
                   {/* Edit Button */}
                   <CollapsibleTrigger asChild>
                     <Button 
-                      variant="outline" 
+                      variant="secondary" 
                       size="sm" 
-                      className="ml-4 flex-shrink-0 bg-white hover:bg-blue-50 border-2 border-blue-200 text-blue-700 hover:text-blue-800 font-medium shadow-sm hover:shadow-md transition-all duration-200 px-4 py-2"
+                      className="ml-4 flex-shrink-0"
                     >
                       <span className="mr-2">✏️</span>
                       Edit
@@ -490,23 +490,23 @@ Format your response exactly like the original recipe format.`;
 
             {/* Expanded Full Form */}
             <CollapsibleContent className="transition-all duration-300 ease-in-out">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Filter className="w-5 h-5 text-gray-600" />
-                  <h3 className="text-lg font-semibold text-gray-800">Recipe Preferences</h3>
+              <CardContent className="p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <Filter className="w-6 h-6 text-primary" />
+                  <h3 className="text-xl font-semibold text-foreground">Recipe Preferences</h3>
                   <div className="flex-1"></div>
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isPreferencesExpanded ? 'rotate-180' : ''}`} />
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${isPreferencesExpanded ? 'rotate-180' : ''}`} />
                     </Button>
                   </CollapsibleTrigger>
                 </div>
                 
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {/* Dietary Preference */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Dietary Preference</label>
-                    <div className="flex flex-wrap gap-2">
+                  <div className="space-y-3">
+                    <label className="text-base font-medium text-foreground">Dietary Preference</label>
+                    <div className="flex flex-wrap gap-3">
                       {[
                         { value: 'vegan', label: 'Vegan', emoji: '🌱' },
                         { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
@@ -518,15 +518,15 @@ Format your response exactly like the original recipe format.`;
                             key={option.value}
                             onClick={() => setDietaryPreference(option.value)}
                             className={`
-                              inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg
-                              transition-all duration-200 hover:scale-105 active:scale-95 select-none
+                              inline-flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-button
+                              transition-all duration-300 hover:scale-105 active:scale-95 select-none
                               ${isSelected 
-                                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                                : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border border-input'
+                                ? 'bg-gradient-primary text-primary-foreground shadow-primary' 
+                                : 'bg-card text-foreground hover:bg-accent hover:text-accent-foreground border border-border shadow-sm'
                               }
                             `}
                           >
-                            <span className="text-base">{option.emoji}</span>
+                            <span className="text-lg">{option.emoji}</span>
                             {option.label}
                           </button>
                         );
@@ -535,22 +535,22 @@ Format your response exactly like the original recipe format.`;
                   </div>
 
                   {/* Number of People */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Number of People</label>
-                    <div className="flex items-center gap-3">
+                  <div className="space-y-3">
+                    <label className="text-base font-medium text-foreground">Number of People</label>
+                    <div className="flex items-center gap-4">
                       <button
                         onClick={() => setNumberOfPeople(Math.max(1, parseInt(numberOfPeople) - 1).toString())}
-                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="flex items-center justify-center w-12 h-12 rounded-card border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                         disabled={parseInt(numberOfPeople) <= 1}
                       >
                         −
                       </button>
-                      <span className="text-lg font-medium min-w-[2rem] text-center">
+                      <span className="text-xl font-semibold min-w-[2.5rem] text-center text-foreground">
                         {numberOfPeople}
                       </span>
                       <button
                         onClick={() => setNumberOfPeople(Math.min(8, parseInt(numberOfPeople) + 1).toString())}
-                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="flex items-center justify-center w-12 h-12 rounded-card border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                         disabled={parseInt(numberOfPeople) >= 8}
                       >
                         +
@@ -560,24 +560,24 @@ Format your response exactly like the original recipe format.`;
                 </div>
 
                 {/* Separator */}
-                <div className="my-6 border-t border-gray-200"></div>
+                <div className="my-8 border-t border-border"></div>
 
                 {/* Special Requests Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-600" />
-                    <h4 className="text-lg font-semibold text-gray-800">Anything specific in mind?</h4>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-6 h-6 text-accent" />
+                    <h4 className="text-xl font-semibold text-foreground">Anything specific in mind?</h4>
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Special Requests (optional)</label>
+                  <div className="space-y-3">
+                    <label className="text-base font-medium text-foreground">Special Requests (optional)</label>
                     <Input
                       value={specialRequest}
                       onChange={(e) => setSpecialRequest(e.target.value)}
                       placeholder={placeholders[placeholderIndex]}
                       className="w-full transition-all duration-300"
                     />
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       Tell us what you're craving, ingredients you want to use, or any specific preferences
                     </p>
                   </div>
@@ -589,19 +589,28 @@ Format your response exactly like the original recipe format.`;
 
         {/* Generate Recipe Section - Only show when no recipe is generated */}
         {!parsedRecipe && (
-          <Card className="mb-8 bg-white shadow-lg rounded-xl border-0">
-            <CardContent className="p-6">
+          <Card className="mb-12">
+            <CardContent className="p-8">
               <div className="text-center">
-                <Button onClick={generateRecipe} disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-md transition-all duration-300">
-                  {isLoading ? <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                <Button 
+                  onClick={generateRecipe} 
+                  disabled={isLoading} 
+                  size="lg"
+                  className="px-10 py-4 text-lg font-semibold"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
                       Generating Recipe...
-                    </div> : "Let's get cooking 👩‍🍳"}
+                    </div>
+                  ) : (
+                    "Let's get cooking 👩‍🍳"
+                  )}
                 </Button>
                 
                 {!user && (
-                  <p className="text-sm text-gray-600 mt-4">
-                    <Link to="/auth" className="text-blue-600 hover:underline">
+                  <p className="text-base text-muted-foreground mt-6">
+                    <Link to="/auth" className="text-primary hover:underline font-medium">
                       Sign up
                     </Link>{" "}
                     to save your favorite recipes and personalize your experience!
