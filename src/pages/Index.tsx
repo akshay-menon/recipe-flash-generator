@@ -622,16 +622,16 @@ Format your response exactly like the original recipe format.`;
         )}
 
         {/* Recipe Display */}
-        {parsedRecipe && <Card className="bg-white shadow-xl rounded-2xl overflow-hidden border-0 mb-8">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
-              <h2 className="text-3xl font-bold mb-2">{parsedRecipe.name}</h2>
+        {parsedRecipe && <Card className="overflow-hidden mb-8">
+            <div className="bg-gradient-primary p-8 text-primary-foreground">
+              <h2 className="text-4xl font-bold mb-4">{parsedRecipe.name}</h2>
               {modificationNote && (
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium mb-3">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 text-primary-foreground rounded-card text-sm font-medium mb-4">
                   <span>✨</span>
                   <span>Modified: {modificationNote}</span>
                 </div>
               )}
-              <div className="flex items-center space-x-6 text-blue-100">
+              <div className="flex items-center space-x-8 text-primary-foreground/90">
                 <div className="flex items-center">
                   <Clock className="w-5 h-5 mr-2" />
                   <span>{parsedRecipe.cookingTime}</span>
@@ -645,11 +645,11 @@ Format your response exactly like the original recipe format.`;
             
             {/* Recipe Image */}
             {parsedRecipe.imageUrl && (
-              <div className="px-8 pt-6">
+              <div className="px-8 pt-8">
                 <img 
                   src={parsedRecipe.imageUrl} 
                   alt={parsedRecipe.name}
-                  className="w-full h-64 object-cover rounded-lg shadow-md"
+                  className="w-full h-64 object-cover rounded-card shadow-card"
                 />
               </div>
             )}
@@ -657,15 +657,15 @@ Format your response exactly like the original recipe format.`;
             <ScrollArea className="h-96 w-full">
               <CardContent className="p-8">
                 {/* Nutritional Information Section */}
-                {parsedRecipe.nutrition && <div className="mb-8 bg-green-50 rounded-lg p-6 border border-green-200">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4 text-left">
+                {parsedRecipe.nutrition && <div className="mb-8 bg-secondary/10 rounded-card p-8 border border-secondary/20">
+                    <h3 className="text-2xl font-semibold text-foreground mb-6 text-left">
                       Nutritional Information (per person)
                     </h3>
-                    <div className="space-y-3">
-                      <div className="text-lg font-medium text-green-700">
+                    <div className="space-y-4">
+                      <div className="text-xl font-medium text-secondary">
                         {parsedRecipe.nutrition.calories}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-base text-foreground">
                         <div className="flex items-center">
                           <span className="font-medium">Protein:</span>
                           <span className="ml-2">{parsedRecipe.nutrition.protein}</span>
@@ -683,29 +683,29 @@ Format your response exactly like the original recipe format.`;
                   </div>}
 
                 {/* Ingredients Section */}
-                {parsedRecipe.ingredients.length > 0 && <div className="mb-8">
-                    <h3 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-200 pb-2">
+                {parsedRecipe.ingredients.length > 0 && <div className="mb-10">
+                    <h3 className="text-3xl font-semibold text-foreground mb-6 border-b-2 border-accent/30 pb-3">
                       Ingredients
                     </h3>
-                    <ul className="space-y-3">
+                    <ul className="space-y-4">
                       {parsedRecipe.ingredients.map((ingredient: string, index: number) => <li key={index} className="flex items-start">
-                          <span className="inline-block w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                          <span className="text-gray-700 text-lg">{ingredient}</span>
+                          <span className="inline-block w-2 h-2 bg-primary rounded-full mt-2 mr-4 flex-shrink-0"></span>
+                          <span className="text-foreground text-lg">{ingredient}</span>
                         </li>)}
                     </ul>
                   </div>}
 
                 {/* Instructions Section */}
-                {parsedRecipe.instructions.length > 0 && <div className="mb-8">
-                    <h3 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-orange-200 pb-2">
+                {parsedRecipe.instructions.length > 0 && <div className="mb-10">
+                    <h3 className="text-3xl font-semibold text-foreground mb-6 border-b-2 border-accent/30 pb-3">
                       Instructions
                     </h3>
-                    <ol className="space-y-4">
+                    <ol className="space-y-6">
                       {parsedRecipe.instructions.map((instruction: string, index: number) => <li key={index} className="flex items-start">
-                          <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold mr-4 flex-shrink-0 mt-1">
+                          <span className="inline-flex items-center justify-center w-10 h-10 bg-primary/10 text-primary rounded-full font-semibold mr-6 flex-shrink-0 mt-1">
                             {index + 1}
                           </span>
-                          <span className="text-gray-700 text-lg leading-relaxed">{instruction}</span>
+                          <span className="text-foreground text-lg leading-relaxed">{instruction}</span>
                         </li>)}
                     </ol>
                   </div>}
@@ -713,12 +713,12 @@ Format your response exactly like the original recipe format.`;
             </ScrollArea>
 
             {/* Action Buttons */}
-            <div className="p-6 border-t border-gray-200 bg-gray-50">
+            <div className="p-8 border-t border-border bg-muted/30">
               {/* Recipe Modification Input */}
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
+              <div className="mb-8">
+                <div className="flex items-center gap-2 mb-3">
                   <span className="text-lg">✨</span>
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-foreground">
                     Quick modifications
                   </label>
                 </div>
@@ -738,38 +738,40 @@ Format your response exactly like the original recipe format.`;
                     <Button
                       onClick={modifyRecipe}
                       disabled={isModifying}
-                      className="absolute right-1 h-8 w-8 p-0 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200 shadow-sm hover:shadow-md"
+                      variant="default"
+                      size="icon"
+                      className="absolute right-1 h-8 w-8 rounded-full"
                       title="Modify Recipe"
                     >
                       {isModifying ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
                       ) : (
                         <Send className="w-4 h-4" />
                       )}
                     </Button>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-2">
                   Request specific modifications to the recipe
                 </p>
               </div>
 
               {/* Icon Action Buttons */}
-              <div className="flex items-center justify-center gap-6">
+              <div className="flex items-center justify-center gap-8">
                 {/* Save Recipe Button */}
                 <div className="flex flex-col items-center">
                   <Button 
                     onClick={user ? saveRecipe : () => window.location.href = '/auth'}
                     disabled={isSaving}
-                    className="w-14 h-14 rounded-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 p-0 flex items-center justify-center"
+                    className="w-16 h-16 rounded-full bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-primary hover:shadow-accent transition-all duration-300 p-0 flex items-center justify-center hover:scale-105"
                   >
                     {isSaving ? (
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-destructive-foreground"></div>
                     ) : (
                       <Heart className="w-6 h-6" fill="currentColor" />
                     )}
                   </Button>
-                  <span className="text-xs text-gray-600 mt-2 font-medium">Save</span>
+                  <span className="text-sm text-muted-foreground mt-3 font-medium">Save</span>
                 </div>
 
                 {/* Generate Another Recipe Button */}
@@ -777,21 +779,22 @@ Format your response exactly like the original recipe format.`;
                   <Button 
                     onClick={generateRecipe} 
                     disabled={isLoading} 
-                    className="w-14 h-14 rounded-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 p-0 flex items-center justify-center"
+                    variant="secondary"
+                    className="w-16 h-16 rounded-full shadow-secondary hover:shadow-accent transition-all duration-300 p-0 flex items-center justify-center hover:scale-105"
                   >
                     {isLoading ? (
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary-foreground"></div>
                     ) : (
                       <RotateCcw className="w-6 h-6" />
                     )}
                   </Button>
-                  <span className="text-xs text-gray-600 mt-2 font-medium">Fresh Recipe</span>
+                  <span className="text-sm text-muted-foreground mt-3 font-medium">Fresh Recipe</span>
                 </div>
               </div>
               
               {!user && (
-                <p className="text-sm text-gray-600 mt-6 text-center">
-                  <Link to="/auth" className="text-blue-600 hover:underline">
+                <p className="text-sm text-muted-foreground mt-8 text-center">
+                  <Link to="/auth" className="text-primary hover:underline">
                     Sign up
                   </Link>{" "}
                   to save your favorite recipes!
