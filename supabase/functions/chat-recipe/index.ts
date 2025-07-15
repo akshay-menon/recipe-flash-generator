@@ -16,29 +16,55 @@ const generateChatPrompt = (messages: Message[], exchangeNumber: number, userInp
   if (exchangeNumber === 1) {
     return `Analyze this recipe request: ${userInput}
 
-If the request is clear enough to generate a recipe immediately, generate it.
+If the request is clear enough to generate a recipe immediately, generate it using the EXACT format below.
 If not, ask 1-2 specific clarifying questions to help create the recipe.
 Focus on the most important missing details:
 
-Type of dish/component unclear? Ask for clarification
-Cooking method preferences? Ask briefly
-Dietary restrictions relevant? Check quickly
+- Type of dish/component unclear? Ask for clarification
+- Cooking method preferences? Ask briefly
+- Dietary restrictions relevant? Check quickly
 
-Keep questions focused and recipe-oriented. Aim to generate a recipe within 2 exchanges maximum.`;
+Keep questions focused and recipe-oriented. Aim to generate a recipe within 2 exchanges maximum.
+
+If generating a recipe, use this EXACT format:
+
+**Recipe Name:** [Creative but simple name]
+
+**Cooking Time:** [X minutes]
+
+**Ingredients:**
+- [ingredient 1 with quantity]
+- [ingredient 2 with quantity]
+- [etc.]
+
+**Instructions:**
+1. [Step 1]
+2. [Step 2]
+3. [etc.]
+
+**Serves:** 2 people`;
   } else if (exchangeNumber === 2) {
     const conversationHistory = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
     return `Based on previous conversation:
 ${conversationHistory}
 
-Now generate a complete recipe. Even if some details aren't perfect, create a good recipe that addresses the user's core request. Include:
+Now generate a complete recipe using the EXACT format below. Even if some details aren't perfect, create a good recipe that addresses the user's core request.
 
-Recipe name
-Ingredients with quantities
-Step-by-step instructions
-Cooking time
-Serves X people
+**Recipe Name:** [Creative but simple name]
 
-Format this as a structured recipe card.`;
+**Cooking Time:** [X minutes]
+
+**Ingredients:**
+- [ingredient 1 with quantity]
+- [ingredient 2 with quantity]
+- [etc.]
+
+**Instructions:**
+1. [Step 1]
+2. [Step 2]
+3. [etc.]
+
+**Serves:** 2 people`;
   } else {
     // Exchange 3+ - recipe modification mode
     const conversationHistory = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
@@ -47,7 +73,23 @@ ${conversationHistory}
 
 User's new request: ${userInput}
 
-Please help modify or adjust the recipe based on this new request. Keep the core recipe structure but make the requested changes.`;
+Please modify the recipe using the EXACT format below. Make the requested changes while keeping the core structure:
+
+**Recipe Name:** [Recipe name, updated if needed]
+
+**Cooking Time:** [X minutes]
+
+**Ingredients:**
+- [ingredient 1 with quantity]
+- [ingredient 2 with quantity]
+- [etc.]
+
+**Instructions:**
+1. [Step 1]
+2. [Step 2]
+3. [etc.]
+
+**Serves:** 2 people`;
   }
 };
 

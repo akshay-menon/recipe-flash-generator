@@ -62,13 +62,13 @@ const Chat = () => {
     "Crispy Brussels sprouts recipe"
   ];
 
-  // Recipe parsing function
+  // Recipe parsing function - matches the main page format exactly
   const parseRecipeResponse = (response: string): ParsedRecipe | null => {
     // Check if response contains structured recipe markers
     if (!response.includes('**Recipe Name:**') && 
-        !response.includes('Recipe:') && 
-        !response.includes('Ingredients:') &&
-        !response.includes('Instructions:')) {
+        !response.includes('**Cooking Time:**') && 
+        !response.includes('**Ingredients:**') &&
+        !response.includes('**Instructions:**')) {
       return null; // Not a recipe response
     }
 
@@ -76,6 +76,10 @@ const Chat = () => {
     let recipeName = '';
     let cookingTime = '';
     let serves = '';
+    let calories = '';
+    let protein = '';
+    let carbs = '';
+    let fat = '';
     const ingredients: string[] = [];
     const instructions: string[] = [];
     let currentSection = '';
@@ -83,16 +87,26 @@ const Chat = () => {
     for (const line of lines) {
       const trimmedLine = line.trim();
       
-      if (trimmedLine.includes('**Recipe Name:**') || trimmedLine.includes('Recipe:')) {
-        recipeName = trimmedLine.replace(/\*\*Recipe Name:\*\*|Recipe:/, '').trim();
-      } else if (trimmedLine.includes('**Cooking Time:**') || trimmedLine.includes('Cooking Time:')) {
-        cookingTime = trimmedLine.replace(/\*\*Cooking Time:\*\*|Cooking Time:/, '').trim();
-      } else if (trimmedLine.includes('**Serves:**') || trimmedLine.includes('Serves:')) {
-        serves = trimmedLine.replace(/\*\*Serves:\*\*|Serves:/, '').trim();
-      } else if (trimmedLine.includes('**Ingredients:**') || trimmedLine.includes('Ingredients:')) {
+      if (trimmedLine.includes('**Recipe Name:**')) {
+        recipeName = trimmedLine.replace('**Recipe Name:**', '').trim();
+      } else if (trimmedLine.includes('**Cooking Time:**')) {
+        cookingTime = trimmedLine.replace('**Cooking Time:**', '').trim();
+      } else if (trimmedLine.includes('**Serves:**')) {
+        serves = trimmedLine.replace('**Serves:**', '').trim();
+      } else if (trimmedLine.includes('**Nutritional Information (per person):**')) {
+        currentSection = 'nutrition';
+      } else if (trimmedLine.includes('**Ingredients:**')) {
         currentSection = 'ingredients';
-      } else if (trimmedLine.includes('**Instructions:**') || trimmedLine.includes('Instructions:')) {
+      } else if (trimmedLine.includes('**Instructions:**')) {
         currentSection = 'instructions';
+      } else if (currentSection === 'nutrition' && trimmedLine.startsWith('- Calories:')) {
+        calories = trimmedLine.replace('- Calories:', '').trim();
+      } else if (currentSection === 'nutrition' && trimmedLine.startsWith('- Protein:')) {
+        protein = trimmedLine.replace('- Protein:', '').trim();
+      } else if (currentSection === 'nutrition' && trimmedLine.startsWith('- Carbs:')) {
+        carbs = trimmedLine.replace('- Carbs:', '').trim();
+      } else if (currentSection === 'nutrition' && trimmedLine.startsWith('- Fat:')) {
+        fat = trimmedLine.replace('- Fat:', '').trim();
       } else if (currentSection === 'ingredients' && trimmedLine.startsWith('-')) {
         ingredients.push(trimmedLine.substring(1).trim());
       } else if (currentSection === 'instructions' && /^\d+\./.test(trimmedLine)) {
@@ -103,9 +117,15 @@ const Chat = () => {
     // Only return parsed recipe if we have minimum required fields
     if (recipeName && ingredients.length > 0 && instructions.length > 0) {
       return {
-        name: recipeName,
+        name: recipeName || 'Generated Recipe',
         cookingTime: cookingTime || '30-45 minutes',
         serves: serves || '2 people',
+        nutrition: {
+          calories: calories || 'N/A',
+          protein: protein || 'N/A',
+          carbs: carbs || 'N/A',
+          fat: fat || 'N/A'
+        },
         ingredients,
         instructions
       };
