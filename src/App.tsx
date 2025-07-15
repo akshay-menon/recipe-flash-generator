@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Chat from "./pages/Chat";
 import SavedRecipes from "./pages/SavedRecipes";
 import Preferences from "./pages/Profile";
 import ProfilePage from "./pages/ProfilePage";
@@ -27,6 +28,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/chat" element={<Chat />} />
               <Route path="/saved-recipes" element={<SavedRecipes />} />
               <Route path="/preferences" element={<Preferences />} />
               <Route path="/profile" element={<ProfilePage />} />

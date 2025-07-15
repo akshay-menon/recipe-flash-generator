@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Settings } from 'lucide-react';
+import { Home, MessageSquare, BookOpen, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const BottomNavigation = () => {
@@ -12,6 +12,11 @@ const BottomNavigation = () => {
       label: 'Home',
       path: '/',
       icon: Home,
+    },
+    {
+      label: 'Chat',
+      path: '/chat',
+      icon: MessageSquare,
     },
     {
       label: 'Saved',
