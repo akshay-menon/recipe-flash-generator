@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,12 +6,58 @@ import { Send, MessageSquare } from 'lucide-react';
 
 const Chat = () => {
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+
+  const placeholderTexts = [
+    "I want to make matcha cookies like Levain Bakery...",
+    "Give me a few miso marinade options for salmon...",
+    "I need a quick pasta sauce with pantry ingredients...",
+    "How do I make crispy roasted Brussels sprouts?",
+    "I want to try making Korean corn dogs at home...",
+    "Show me different ways to cook chicken thighs..."
+  ];
 
   const examplePrompts = [
     "Miso marinade for salmon",
     "Quick pasta with pantry ingredients", 
     "Crispy Brussels sprouts recipe"
   ];
+
+  // Cycle through placeholder texts every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPlaceholderIndex((prevIndex) => 
+        (prevIndex + 1) % placeholderTexts.length
+      );
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [placeholderTexts.length]);
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
+    if (!message.trim()) {
+      return; // Prevent empty submissions
+    }
+
+    setIsLoading(true);
+    console.log('User message:', message);
+    
+    // Simulate brief loading state
+    setTimeout(() => {
+      setIsLoading(false);
+      setMessage(''); // Clear input after submission
+    }, 1000);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
 
   const handleExampleClick = (prompt: string) => {
     setMessage(prompt);
@@ -33,21 +79,27 @@ const Chat = () => {
         {/* Input Section */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <div className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <Textarea
-                placeholder="I want to make matcha cookies like Levain Bakery..."
+                placeholder={placeholderTexts[currentPlaceholderIndex]}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="min-h-[100px] resize-none text-base"
+                onKeyDown={handleKeyDown}
+                className="min-h-[100px] resize-none text-base transition-all duration-300"
                 rows={3}
+                disabled={isLoading}
               />
               <div className="flex justify-end">
-                <Button className="flex items-center gap-2">
+                <Button 
+                  type="submit"
+                  disabled={!message.trim() || isLoading}
+                  className="flex items-center gap-2"
+                >
                   <Send className="w-4 h-4" />
-                  Ask
+                  {isLoading ? 'Asking...' : 'Ask'}
                 </Button>
               </div>
-            </div>
+            </form>
           </CardContent>
         </Card>
 
@@ -61,7 +113,8 @@ const Chat = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => handleExampleClick(prompt)}
-                className="text-sm"
+                className="text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                disabled={isLoading}
               >
                 {prompt}
               </Button>
