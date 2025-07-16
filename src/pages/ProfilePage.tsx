@@ -71,6 +71,9 @@ const ProfilePage = () => {
           profile_emoji: profile.profile_emoji,
           email: user.email,
           updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id',
+          ignoreDuplicates: false
         });
 
       if (error) throw error;
