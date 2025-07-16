@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChefHat } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -21,6 +21,8 @@ type AuthFormData = z.infer<typeof authSchema>;
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [currentTab, setCurrentTab] = useState("signin");
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -71,12 +73,15 @@ const Auth = () => {
         variant: "destructive",
       });
     } else {
-      toast({
-        title: "Account Created!",
-        description: "Please check your email to verify your account.",
-      });
+      setShowSuccessScreen(true);
     }
     setIsLoading(false);
+  };
+
+  const handleBackToSignIn = () => {
+    setShowSuccessScreen(false);
+    setCurrentTab("signin");
+    form.reset();
   };
 
   return (
@@ -94,11 +99,31 @@ const Auth = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
+          {showSuccessScreen ? (
+            <div className="text-center space-y-6 py-8">
+              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">Account Created Successfully!</h2>
+                <p className="text-muted-foreground">
+                  Please check your email to verify your account before signing in.
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={handleBackToSignIn}
+                className="mt-6"
+              >
+                Back to Sign In
+              </Button>
+            </div>
+          ) : (
+            <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
             
             <TabsContent value="signin" className="space-y-4">
               <Form {...form}>
@@ -171,7 +196,8 @@ const Auth = () => {
                 </form>
               </Form>
             </TabsContent>
-          </Tabs>
+            </Tabs>
+          )}
         </CardContent>
       </Card>
     </div>
