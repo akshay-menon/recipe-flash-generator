@@ -87,25 +87,27 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-2xl">🍉</span>
-          </div>
-          <div>
-            <CardTitle className="text-2xl">Welcome to Melon Farms</CardTitle>
-            <CardDescription>
-              Sign in or create an account to save your favorite recipes
-            </CardDescription>
-          </div>
-        </CardHeader>
+        {!showSuccessScreen && (
+          <CardHeader className="text-center space-y-4">
+            <div className="mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-2xl">🍉</span>
+            </div>
+            <div>
+              <CardTitle className="text-2xl">Welcome to Melon Farms</CardTitle>
+              <CardDescription>
+                Sign in or create an account to save your favorite recipes
+              </CardDescription>
+            </div>
+          </CardHeader>
+        )}
         <CardContent>
           {showSuccessScreen ? (
-            <div className="text-center space-y-6 py-8">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+            <div className="text-center space-y-6 py-12">
+              <div className="mx-auto w-16 h-16 flex items-center justify-center">
+                <span className="text-6xl">🎉</span>
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-foreground">Account Created Successfully!</h2>
+                <h2 className="text-2xl font-bold text-foreground">Account created successfully!</h2>
                 <p className="text-muted-foreground">
                   Please check your email to verify your account before signing in.
                 </p>
