@@ -18,7 +18,7 @@ const ProfileCompletionBanner: React.FC<ProfileCompletionBannerProps> = ({ onDis
               <User className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-primary">Complete Your Profile</h3>
+              <h3 className="font-semibold text-primary">Tell us what you like</h3>
               <p className="text-sm text-muted-foreground">
                 Tell us about your cooking preferences to get more personalized recipes
               </p>
@@ -26,7 +26,7 @@ const ProfileCompletionBanner: React.FC<ProfileCompletionBannerProps> = ({ onDis
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="default" size="sm">
-              <Link to="/profile">Complete Profile</Link>
+              <Link to="/preferences">Choose preferences</Link>
             </Button>
             {onDismiss && (
               <Button
