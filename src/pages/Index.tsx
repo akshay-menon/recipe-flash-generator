@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfileCompletion } from '@/hooks/useProfileCompletion';
 import ProfileCompletionBanner from '@/components/ProfileCompletionBanner';
+import ProfileSetupBanner from '@/components/ProfileSetupBanner';
 const sampleRecipe = {
   name: "Honey Garlic Chicken with Rice",
   cookingTime: "35 minutes",
@@ -122,7 +123,7 @@ const Index = () => {
   const [rotatingHeadingIndex] = useState(() => Math.floor(Math.random() * 5));
   const { toast } = useToast();
   const { user, signOut, loading } = useAuth();
-  const { isProfileComplete, loading: profileLoading } = useProfileCompletion();
+  const { isProfileComplete, isPreferencesComplete, isPersonalProfileComplete, loading: profileLoading } = useProfileCompletion();
 
   const placeholders = [
     "I feel like pasta tonight...",
@@ -410,9 +411,19 @@ Format your response exactly like the original recipe format.`;
           </p>
         </div>
 
-        {/* Profile Completion Banner */}
-        {user && !profileLoading && isProfileComplete === false && showProfileBanner && (
-          <ProfileCompletionBanner onDismiss={() => setShowProfileBanner(false)} />
+        {/* Profile Completion Banners */}
+        {user && !profileLoading && showProfileBanner && (
+          <>
+            {/* Show preferences banner if preferences are not complete */}
+            {isPreferencesComplete === false && (
+              <ProfileCompletionBanner onDismiss={() => setShowProfileBanner(false)} />
+            )}
+            
+            {/* Show profile setup banner if preferences are complete but personal profile is not */}
+            {isPreferencesComplete === true && isPersonalProfileComplete === false && (
+              <ProfileSetupBanner onDismiss={() => setShowProfileBanner(false)} />
+            )}
+          </>
         )}
 
         {/* Recipe Preferences */}
