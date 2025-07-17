@@ -360,11 +360,11 @@ Always return the full recipe card, not just the changes.`;
           )}
         </div>
 
-        {/* Conversation Area - Only show if no recipe is displayed */}
-        {conversation.length > 0 && !showRecipe && (
+        {/* Chat Container - Show when there's a conversation */}
+        {(conversation.length > 0 || isLoading) && !showRecipe && (
           <Card className="mb-6">
             <CardContent className="p-6">
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="space-y-4 max-h-96 overflow-y-auto mb-4">
                 {conversation.map((msg, index) => (
                   <div
                     key={index}
@@ -377,7 +377,21 @@ Always return the full recipe card, not just the changes.`;
                           : 'bg-muted mr-4'
                       }`}
                     >
-                      <div className="whitespace-pre-wrap">{msg.content}</div>
+                      <div className={`${msg.role === 'assistant' ? 'prose prose-sm max-w-none' : 'whitespace-pre-wrap'}`}>
+                        {msg.role === 'assistant' ? (
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: msg.content
+                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                .replace(/^\d+\.\s/gm, '<br/>$&')
+                                .replace(/^-\s/gm, '<br/>• ')
+                                .replace(/\n/g, '<br/>')
+                            }}
+                          />
+                        ) : (
+                          msg.content
+                        )}
+                      </div>
                       <div
                         className={`text-xs mt-2 opacity-70 ${
                           msg.role === 'user' ? 'text-right' : 'text-left'
@@ -404,6 +418,29 @@ Always return the full recipe card, not just the changes.`;
                 )}
                 <div ref={messagesEndRef} />
               </div>
+              
+              {/* Integrated Input Section */}
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4 border-t pt-4">
+                <Textarea
+                  placeholder={conversation.length > 0 ? "Continue the conversation..." : placeholderTexts[currentPlaceholderIndex]}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="min-h-[80px] resize-none text-base transition-all duration-300"
+                  rows={3}
+                  disabled={isLoading}
+                />
+                <div className="flex justify-end">
+                  <Button 
+                    type="submit"
+                    disabled={!message.trim() || isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    {isLoading ? 'Asking...' : 'Ask'}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         )}
@@ -531,8 +568,8 @@ Always return the full recipe card, not just the changes.`;
           </div>
         )}
 
-        {/* Input Section - Hide when showing recipe */}
-        {!showRecipe && (
+        {/* Initial Input Section - Only show when no conversation and no recipe */}
+        {conversation.length === 0 && !showRecipe && !isLoading && (
           <Card className="mb-6">
             <CardContent className="p-6">
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
