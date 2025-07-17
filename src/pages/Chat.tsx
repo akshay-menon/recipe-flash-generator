@@ -452,33 +452,66 @@ Always return the full recipe card, not just the changes.`;
             <Card className="mb-6 overflow-hidden shadow-card">
               <CardContent className="p-0">
                 {/* Recipe Header */}
-                <div className="bg-gradient-to-r from-primary to-orange-600 text-white p-8">
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-4">{parsedRecipe.name}</h2>
-                  <div className="flex flex-wrap gap-6 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
+                <div className="bg-gradient-primary text-primary-foreground p-8">
+                  <h2 className="text-4xl font-bold mb-4">{parsedRecipe.name}</h2>
+                  <div className="flex items-center space-x-8 text-primary-foreground/90">
+                    <div className="flex items-center">
+                      <Clock className="w-5 h-5 mr-2" />
                       <span>{parsedRecipe.cookingTime}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
+                    <div className="flex items-center">
+                      <Users className="w-5 h-5 mr-2" />
                       <span>{parsedRecipe.serves}</span>
                     </div>
                   </div>
                 </div>
 
+                {/* Recipe Image Placeholder */}
+                <div className="px-8 pt-8">
+                  <div className="w-full h-64 bg-gradient-to-br from-orange-400 to-red-500 rounded-card shadow-card flex items-center justify-center">
+                    <span className="text-6xl">🍽️</span>
+                  </div>
+                </div>
+
                 {/* Recipe Content */}
                 <div className="p-8 space-y-8">
+                  {/* Nutritional Information Section */}
+                  <div className="bg-secondary/10 rounded-card p-8 border border-secondary/20">
+                    <h3 className="text-2xl font-semibold text-foreground mb-6 text-left">
+                      Nutritional Information (per person)
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="text-xl font-medium text-secondary">
+                        485 calories (24% daily intake)
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-base text-foreground">
+                        <div className="flex items-center">
+                          <span className="font-medium">Protein:</span>
+                          <span className="ml-2">32g (64%)</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-medium">Carbs:</span>
+                          <span className="ml-2">45g (15%)</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-medium">Fat:</span>
+                          <span className="ml-2">18g (28%)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Ingredients */}
                   <div>
-                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-primary" />
+                    <h3 className="text-3xl font-semibold text-foreground mb-6 border-b-2 border-accent/30 pb-3">
+                      <BookOpen className="w-6 h-6 text-primary inline mr-3" />
                       Ingredients
                     </h3>
-                    <ul className="space-y-2">
+                    <ul className="space-y-4">
                       {parsedRecipe.ingredients.map((ingredient, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                          <span className="text-muted-foreground">{ingredient}</span>
+                        <li key={index} className="flex items-start">
+                          <span className="inline-block w-2 h-2 bg-primary rounded-full mt-2 mr-4 flex-shrink-0"></span>
+                          <span className="text-foreground text-lg">{ingredient}</span>
                         </li>
                       ))}
                     </ul>
@@ -486,17 +519,17 @@ Always return the full recipe card, not just the changes.`;
 
                   {/* Instructions */}
                   <div>
-                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                      <Edit3 className="w-5 h-5 text-primary" />
+                    <h3 className="text-3xl font-semibold text-foreground mb-6 border-b-2 border-accent/30 pb-3">
+                      <Edit3 className="w-6 h-6 text-primary inline mr-3" />
                       Instructions
                     </h3>
-                    <ol className="space-y-4">
+                    <ol className="space-y-6">
                       {parsedRecipe.instructions.map((instruction, index) => (
-                        <li key={index} className="flex gap-4">
-                          <span className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                        <li key={index} className="flex items-start">
+                          <span className="inline-flex items-center justify-center w-10 h-10 bg-primary/10 text-primary rounded-full font-semibold mr-6 flex-shrink-0 mt-1">
                             {index + 1}
                           </span>
-                          <span className="text-muted-foreground leading-relaxed pt-1">{instruction}</span>
+                          <span className="text-foreground text-lg leading-relaxed">{instruction}</span>
                         </li>
                       ))}
                     </ol>
