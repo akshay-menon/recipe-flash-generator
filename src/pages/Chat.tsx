@@ -618,17 +618,6 @@ Always return the full recipe card, not just the changes.`;
           </div>
         )}
 
-        {/* Empty State - Only show when no conversation and no recipe */}
-        {conversation.length === 0 && !showRecipe && (
-          <Card>
-            <CardContent className="p-8">
-              <div className="text-center text-muted-foreground">
-                <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Start a conversation by describing what you'd like to cook</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );
