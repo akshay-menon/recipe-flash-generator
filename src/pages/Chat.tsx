@@ -46,6 +46,7 @@ const Chat = () => {
   const [recipeModification, setRecipeModification] = useState('');
   const [isModifying, setIsModifying] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [modificationPlaceholderIndex, setModificationPlaceholderIndex] = useState(0);
 
   const placeholderTexts = [
     "I want to make matcha cookies like Levain Bakery...",
@@ -54,6 +55,15 @@ const Chat = () => {
     "How do I make crispy roasted Brussels sprouts?",
     "I want to try making Korean corn dogs at home...",
     "Show me different ways to cook chicken thighs..."
+  ];
+
+  const modificationPlaceholders = [
+    "Swap salmon for cod...",
+    "What can I use instead of sichuan pepper?",
+    "Make this dairy-free...",
+    "Can I use chicken instead of beef?",
+    "I don't have pine nuts...",
+    "Make this spicier..."
   ];
 
   const examplePrompts = [
@@ -149,6 +159,17 @@ const Chat = () => {
 
     return () => clearInterval(interval);
   }, [placeholderTexts.length]);
+
+  // Cycle through modification placeholder texts every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setModificationPlaceholderIndex((prevIndex) => 
+        (prevIndex + 1) % modificationPlaceholders.length
+      );
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [modificationPlaceholders.length]);
 
   const sendMessage = async (userInput: string) => {
     if (!userInput.trim()) return;
@@ -484,18 +505,18 @@ Always return the full recipe card, not just the changes.`;
                       <div className="text-xl font-medium text-secondary">
                         485 calories (24% daily intake)
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-base text-foreground">
-                        <div className="flex items-center">
-                          <span className="font-medium">Protein:</span>
-                          <span className="ml-2">32g (64%)</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="text-center p-4 bg-card rounded-card border border-border">
+                          <div className="text-2xl font-bold text-foreground mb-1">32g</div>
+                          <div className="text-sm text-muted-foreground font-medium">PROTEIN</div>
                         </div>
-                        <div className="flex items-center">
-                          <span className="font-medium">Carbs:</span>
-                          <span className="ml-2">45g (15%)</span>
+                        <div className="text-center p-4 bg-card rounded-card border border-border">
+                          <div className="text-2xl font-bold text-foreground mb-1">45g</div>
+                          <div className="text-sm text-muted-foreground font-medium">CARBS</div>
                         </div>
-                        <div className="flex items-center">
-                          <span className="font-medium">Fat:</span>
-                          <span className="ml-2">18g (28%)</span>
+                        <div className="text-center p-4 bg-card rounded-card border border-border">
+                          <div className="text-2xl font-bold text-foreground mb-1">18g</div>
+                          <div className="text-sm text-muted-foreground font-medium">FAT</div>
                         </div>
                       </div>
                     </div>
@@ -534,67 +555,92 @@ Always return the full recipe card, not just the changes.`;
                       ))}
                     </ol>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recipe Actions */}
-            <Card className="mb-6">
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {/* Modification Input */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-foreground">
-                      Modify this recipe
-                    </label>
-                    <div className="flex gap-3">
+                  {/* Quick Modifications Section - Integrated */}
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg">✨</span>
+                      <label className="text-sm font-medium text-foreground">
+                        Quick modifications
+                      </label>
+                    </div>
+                    <div className="relative flex items-center">
                       <Input
-                        placeholder="Modify this recipe..."
                         value={recipeModification}
                         onChange={(e) => setRecipeModification(e.target.value)}
-                        disabled={isModifying}
-                        className="flex-1"
+                        placeholder={modificationPlaceholders[modificationPlaceholderIndex]}
+                        className="w-full pr-12 transition-all duration-300"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && recipeModification.trim() && !isModifying) {
+                            modifyRecipe();
+                          }
+                        }}
                       />
+                      {recipeModification.trim() && (
+                        <Button
+                          onClick={modifyRecipe}
+                          disabled={isModifying}
+                          variant="default"
+                          size="icon"
+                          className="absolute right-1 h-8 w-8 rounded-full"
+                          title="Modify Recipe"
+                        >
+                          {isModifying ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Request specific modifications to the recipe
+                    </p>
+                  </div>
+
+                  {/* Icon Action Buttons */}
+                  <div className="flex items-center justify-center gap-8">
+                    {/* Save Recipe Button */}
+                    <div className="flex flex-col items-center">
                       <Button 
-                        onClick={modifyRecipe}
-                        disabled={!recipeModification.trim() || isModifying}
-                        variant="outline"
+                        onClick={user ? saveRecipe : () => window.location.href = '/auth'}
+                        disabled={isSaving}
+                        className="w-16 h-16 rounded-full bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-primary hover:shadow-accent transition-all duration-300 p-0 flex items-center justify-center hover:scale-105"
                       >
-                        <Edit3 className="w-4 h-4 mr-2" />
-                        {isModifying ? 'Modifying...' : 'Modify'}
+                        {isSaving ? (
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-destructive-foreground"></div>
+                        ) : (
+                          <Heart className="w-6 h-6" fill="currentColor" />
+                        )}
                       </Button>
+                      <span className="text-sm text-muted-foreground mt-3 font-medium">Save</span>
+                    </div>
+
+                    {/* Generate Another Recipe Button */}
+                    <div className="flex flex-col items-center">
+                      <Button 
+                        onClick={resetConversation} 
+                        disabled={isLoading} 
+                        variant="secondary"
+                        className="w-16 h-16 rounded-full shadow-secondary hover:shadow-accent transition-all duration-300 p-0 flex items-center justify-center hover:scale-105"
+                      >
+                        {isLoading ? (
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary-foreground"></div>
+                        ) : (
+                          <RotateCcw className="w-6 h-6" />
+                        )}
+                      </Button>
+                      <span className="text-sm text-muted-foreground mt-3 font-medium">Fresh Recipe</span>
                     </div>
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button 
-                      onClick={saveRecipe}
-                      disabled={isSaving}
-                      className="flex-1 bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90"
-                    >
-                      <Heart className="w-4 h-4 mr-2" />
-                      {isSaving ? 'Saving...' : 'Save Recipe'}
-                    </Button>
-                    <Button 
-                      onClick={resetConversation}
-                      variant="outline"
-                      className="flex-1"
-                    >
-                      <RotateCcw className="w-4 h-4 mr-2" />
-                      Fresh Recipe
-                    </Button>
-                  </div>
-
-                  {/* Start Over Button */}
-                  <Button 
-                    onClick={() => setShowRecipe(false)}
-                    variant="ghost"
-                    className="w-full"
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Start Over
-                  </Button>
+                  
+                  {!user && (
+                    <p className="text-sm text-muted-foreground mt-8 text-center">
+                      <span className="text-primary hover:underline cursor-pointer" onClick={() => window.location.href = '/auth'}>
+                        Sign up
+                      </span>{" "}
+                      to save your favorite recipes!
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
