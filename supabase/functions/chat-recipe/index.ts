@@ -6,6 +6,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to check if response contains a recipe
+const containsRecipe = (text: string): boolean => {
+  return text.includes('**Recipe Name:**') && 
+         text.includes('**Ingredients:**') && 
+         text.includes('**Instructions:**');
+};
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -101,9 +108,14 @@ serve(async (req) => {
 
   try {
     const claudeApiKey = Deno.env.get('CLAUDE_API_KEY');
+    const stabilityApiKey = Deno.env.get('STABILITY_API_KEY');
     
     if (!claudeApiKey) {
       throw new Error('Claude API key not configured');
+    }
+
+    if (!stabilityApiKey) {
+      console.warn('Stability API key not configured - images will not be generated');
     }
 
     const { messages, userInput, exchangeNumber } = await req.json();
@@ -137,9 +149,59 @@ serve(async (req) => {
     
     console.log('Chat response generated successfully');
 
+    // Check if response contains a recipe and generate image if it does
+    let imageUrl = null;
+    if (containsRecipe(responseText) && stabilityApiKey) {
+      try {
+        // Extract recipe name for image generation
+        const recipeNameMatch = responseText.match(/\*\*Recipe Name:\*\*\s*(.+)/);
+        const recipeName = recipeNameMatch ? recipeNameMatch[1].trim() : 'Delicious recipe';
+        
+        console.log('Generating image for recipe:', recipeName);
+
+        // Generate image with Stability AI
+        const imagePrompt = `Professional food photography of ${recipeName}, appetizing, restaurant quality, well-lit, beautifully plated, high resolution`;
+        
+        const imageResponse = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${stabilityApiKey}`,
+          },
+          body: JSON.stringify({
+            text_prompts: [
+              {
+                text: imagePrompt,
+                weight: 1
+              }
+            ],
+            cfg_scale: 7,
+            height: 1024,
+            width: 1024,
+            steps: 30,
+            samples: 1
+          })
+        });
+
+        if (imageResponse.ok) {
+          const imageData = await imageResponse.json();
+          if (imageData.artifacts && imageData.artifacts[0]) {
+            imageUrl = `data:image/png;base64,${imageData.artifacts[0].base64}`;
+            console.log('Image generated successfully');
+          }
+        } else {
+          console.error('Image generation failed:', await imageResponse.text());
+        }
+      } catch (imageError) {
+        console.error('Error generating image:', imageError);
+        // Continue without image - don't fail the whole request
+      }
+    }
+
     return new Response(JSON.stringify({ 
       response: responseText,
-      exchangeNumber
+      exchangeNumber,
+      imageUrl: imageUrl
     }), {
       headers: { 
         ...corsHeaders, 

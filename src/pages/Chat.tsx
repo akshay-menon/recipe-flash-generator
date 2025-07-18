@@ -47,6 +47,7 @@ const Chat = () => {
   const [isModifying, setIsModifying] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [modificationPlaceholderIndex, setModificationPlaceholderIndex] = useState(0);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const placeholderTexts = [
     "I want to make matcha cookies like Levain Bakery...",
@@ -206,6 +207,10 @@ const Chat = () => {
       // Check if response contains a recipe
       const recipe = parseRecipeResponse(data.response);
       if (recipe) {
+        // Add image URL if available
+        if (data.imageUrl) {
+          recipe.imageUrl = data.imageUrl;
+        }
         setParsedRecipe(recipe);
         setShowRecipe(true);
       }
@@ -329,6 +334,10 @@ Always return the full recipe card, not just the changes.`;
 
       const modifiedRecipe = parseRecipeResponse(data.response);
       if (modifiedRecipe) {
+        // Add image URL if available
+        if (data.imageUrl) {
+          modifiedRecipe.imageUrl = data.imageUrl;
+        }
         setParsedRecipe(modifiedRecipe);
         setRecipeModification('');
         toast({
@@ -487,11 +496,19 @@ Always return the full recipe card, not just the changes.`;
                   </div>
                 </div>
 
-                {/* Recipe Image Placeholder */}
+                {/* Recipe Image */}
                 <div className="px-8 pt-8">
-                  <div className="w-full h-64 bg-gradient-to-br from-orange-400 to-red-500 rounded-card shadow-card flex items-center justify-center">
-                    <span className="text-6xl">🍽️</span>
-                  </div>
+                  {parsedRecipe.imageUrl ? (
+                    <img 
+                      src={parsedRecipe.imageUrl} 
+                      alt={parsedRecipe.name}
+                      className="w-full h-64 object-cover rounded-card shadow-card"
+                    />
+                  ) : (
+                    <div className="w-full h-64 bg-gradient-to-br from-orange-400 to-red-500 rounded-card shadow-card flex items-center justify-center">
+                      <span className="text-6xl">🍽️</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Recipe Content */}
