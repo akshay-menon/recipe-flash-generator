@@ -49,6 +49,9 @@ const Chat = () => {
   const [modificationPlaceholderIndex, setModificationPlaceholderIndex] = useState(0);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
+  // Persistence key for localStorage
+  const STORAGE_KEY = 'chat-session-state';
+
   const placeholderTexts = [
     "I want to make matcha cookies like Levain Bakery...",
     "Give me a few miso marinade options for salmon...",
@@ -144,6 +147,49 @@ const Chat = () => {
 
     return null;
   };
+
+  // Load persisted state on component mount
+  useEffect(() => {
+    const loadPersistedState = () => {
+      try {
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (savedState) {
+          const parsedState = JSON.parse(savedState);
+          setConversation(parsedState.conversation || []);
+          setExchangeNumber(parsedState.exchangeNumber || 1);
+          setParsedRecipe(parsedState.parsedRecipe || null);
+          setShowRecipe(parsedState.showRecipe || false);
+        }
+      } catch (error) {
+        console.error('Error loading persisted chat state:', error);
+      }
+    };
+
+    loadPersistedState();
+  }, []);
+
+  // Save state to localStorage whenever key state changes
+  useEffect(() => {
+    const saveState = () => {
+      try {
+        const stateToSave = {
+          conversation,
+          exchangeNumber,
+          parsedRecipe,
+          showRecipe,
+          timestamp: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+      } catch (error) {
+        console.error('Error saving chat state:', error);
+      }
+    };
+
+    // Only save if there's actually content to save
+    if (conversation.length > 0 || parsedRecipe) {
+      saveState();
+    }
+  }, [conversation, exchangeNumber, parsedRecipe, showRecipe]);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -255,6 +301,13 @@ const Chat = () => {
     setShowRecipe(false);
     setParsedRecipe(null);
     setRecipeModification('');
+    
+    // Clear persisted state
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing chat state:', error);
+    }
   };
 
   const saveRecipe = async () => {
