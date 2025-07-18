@@ -125,6 +125,9 @@ const Index = () => {
   const { user, signOut, loading } = useAuth();
   const { isProfileComplete, isPreferencesComplete, isPersonalProfileComplete, loading: profileLoading } = useProfileCompletion();
 
+  // Persistence key for localStorage
+  const STORAGE_KEY = 'home-recipe-state';
+
   const placeholders = [
     "I feel like pasta tonight...",
     "I have salmon in my fridge to use up...",
@@ -181,6 +184,46 @@ const Index = () => {
     fetchUserProfile();
   }, [user]);
 
+  // Load persisted state on component mount
+  useEffect(() => {
+    const loadPersistedState = () => {
+      try {
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (savedState) {
+          const parsedState = JSON.parse(savedState);
+          setParsedRecipe(parsedState.parsedRecipe || null);
+          setModificationNote(parsedState.modificationNote || '');
+          // Don't restore preferences to allow fresh customization each time
+        }
+      } catch (error) {
+        console.error('Error loading persisted home recipe state:', error);
+      }
+    };
+
+    loadPersistedState();
+  }, []);
+
+  // Save state to localStorage whenever key state changes
+  useEffect(() => {
+    const saveState = () => {
+      try {
+        const stateToSave = {
+          parsedRecipe,
+          modificationNote,
+          timestamp: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+      } catch (error) {
+        console.error('Error saving home recipe state:', error);
+      }
+    };
+
+    // Only save if there's actually a recipe to save
+    if (parsedRecipe) {
+      saveState();
+    }
+  }, [parsedRecipe, modificationNote]);
+
   // Helper function to get dietary preference emoji only
   const getDietaryPreferenceEmoji = () => {
     const options = [
@@ -218,6 +261,14 @@ const Index = () => {
     setIsLoading(true);
     setApiError('');
     setParsedRecipe(null);
+    setModificationNote(''); // Clear any previous modification note
+    
+    // Clear persisted state when generating new recipe
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing home recipe state:', error);
+    }
     try {
       const {
         data,
