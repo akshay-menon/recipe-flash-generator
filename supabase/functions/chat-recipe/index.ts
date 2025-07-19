@@ -49,7 +49,15 @@ If generating a recipe, use this EXACT format:
 2. [Step 2]
 3. [etc.]
 
-**Serves:** 2 people`;
+**Serves:** 2 people
+
+**Nutritional Information (per serving):**
+- Calories: [Calculate and provide accurate calorie estimate]
+- Protein: [X]g
+- Carbs: [X]g
+- Fat: [X]g
+
+Calculate the nutritional information based on the actual ingredients and quantities used. Provide realistic estimates based on standard nutritional values.`;
   } else if (exchangeNumber === 2) {
     const conversationHistory = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
     return `Based on previous conversation:
@@ -71,7 +79,15 @@ Now generate a complete recipe using the EXACT format below. Even if some detail
 2. [Step 2]
 3. [etc.]
 
-**Serves:** 2 people`;
+**Serves:** 2 people
+
+**Nutritional Information (per serving):**
+- Calories: [Calculate and provide accurate calorie estimate]
+- Protein: [X]g
+- Carbs: [X]g
+- Fat: [X]g
+
+Calculate the nutritional information based on the actual ingredients and quantities used. Provide realistic estimates based on standard nutritional values.`;
   } else {
     // Exchange 3+ - recipe modification mode
     const conversationHistory = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
@@ -96,7 +112,15 @@ Please modify the recipe using the EXACT format below. Make the requested change
 2. [Step 2]
 3. [etc.]
 
-**Serves:** 2 people`;
+**Serves:** 2 people
+
+**Nutritional Information (per serving):**
+- Calories: [Calculate and provide accurate calorie estimate]
+- Protein: [X]g
+- Carbs: [X]g
+- Fat: [X]g
+
+Calculate the nutritional information based on the actual ingredients and quantities used. Provide realistic estimates based on standard nutritional values.`;
   }
 };
 
