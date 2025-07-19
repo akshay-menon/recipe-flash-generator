@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfileCompletion } from '@/hooks/useProfileCompletion';
 import ProfileCompletionBanner from '@/components/ProfileCompletionBanner';
 import ProfileSetupBanner from '@/components/ProfileSetupBanner';
-import TypewriterLoading from '@/components/TypewriterLoading';
+import LoadingMessages from '@/components/LoadingMessages';
 const sampleRecipe = {
   name: "Honey Garlic Chicken with Rice",
   cookingTime: "35 minutes",
@@ -621,7 +621,7 @@ Format your response exactly like the original recipe format.`;
                     <div className="mt-8 pt-6 border-t border-border">
                       <div className="text-center">
                         {isLoading ? (
-                          <TypewriterLoading />
+                          <LoadingMessages />
                         ) : (
                           <Button 
                             onClick={generateRecipe} 
