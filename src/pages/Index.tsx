@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfileCompletion } from '@/hooks/useProfileCompletion';
 import ProfileCompletionBanner from '@/components/ProfileCompletionBanner';
 import ProfileSetupBanner from '@/components/ProfileSetupBanner';
+import TypewriterLoading from '@/components/TypewriterLoading';
 const sampleRecipe = {
   name: "Honey Garlic Chicken with Rice",
   cookingTime: "35 minutes",
@@ -625,21 +626,18 @@ Format your response exactly like the original recipe format.`;
           <Card className="mb-12">
             <CardContent className="p-8">
               <div className="text-center">
-                <Button 
-                  onClick={generateRecipe} 
-                  disabled={isLoading} 
-                  size="lg"
-                  className="px-10 py-4 text-lg font-semibold"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                      Generating Recipe...
-                    </div>
-                  ) : (
+                {isLoading ? (
+                  <TypewriterLoading />
+                ) : (
+                  <Button 
+                    onClick={generateRecipe} 
+                    disabled={isLoading} 
+                    size="lg"
+                    className="px-10 py-4 text-lg font-semibold"
+                  >
                     "Let's get cooking 👩‍🍳"
-                  )}
-                </Button>
+                  </Button>
+                )}
                 
                 {!user && (
                   <p className="text-base text-muted-foreground mt-6">
