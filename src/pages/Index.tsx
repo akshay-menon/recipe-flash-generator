@@ -615,42 +615,41 @@ Format your response exactly like the original recipe format.`;
                       Tell us what you're craving, ingredients you want to use, or any specific preferences
                     </p>
                   </div>
+                  
+                  {/* Generate Recipe Button - Integrated into preferences */}
+                  {!parsedRecipe && (
+                    <div className="mt-8 pt-6 border-t border-border">
+                      <div className="text-center">
+                        {isLoading ? (
+                          <TypewriterLoading />
+                        ) : (
+                          <Button 
+                            onClick={generateRecipe} 
+                            disabled={isLoading} 
+                            size="lg"
+                            className="px-10 py-4 text-lg font-semibold"
+                          >
+                            Let's get cooking 🧑‍🍳
+                          </Button>
+                        )}
+                        
+                        {!user && (
+                          <p className="text-base text-muted-foreground mt-6">
+                            <Link to="/auth" className="text-primary hover:underline font-medium">
+                              Sign up
+                            </Link>{" "}
+                            to save your favorite recipes and personalize your experience!
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </CollapsibleContent>
           </Collapsible>
         </Card>
 
-        {/* Generate Recipe Section - Only show when no recipe is generated */}
-        {!parsedRecipe && (
-          <Card className="mb-12">
-            <CardContent className="p-8">
-              <div className="text-center">
-                {isLoading ? (
-                  <TypewriterLoading />
-                ) : (
-                  <Button 
-                    onClick={generateRecipe} 
-                    disabled={isLoading} 
-                    size="lg"
-                    className="px-10 py-4 text-lg font-semibold"
-                  >
-                    "Let's get cooking 👩‍🍳"
-                  </Button>
-                )}
-                
-                {!user && (
-                  <p className="text-base text-muted-foreground mt-6">
-                    <Link to="/auth" className="text-primary hover:underline font-medium">
-                      Sign up
-                    </Link>{" "}
-                    to save your favorite recipes and personalize your experience!
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Recipe Display */}
         {parsedRecipe && <Card className="overflow-hidden mb-8">
