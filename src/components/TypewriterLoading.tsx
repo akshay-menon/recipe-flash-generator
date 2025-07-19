@@ -42,6 +42,9 @@ const TypewriterLoading: React.FC<TypewriterLoadingProps> = ({
 
     const currentMessage = messages[currentMessageIndex];
     if (currentMessage) {
+      // Reset state and start typing
+      setCurrentText('');
+      setIsTyping(true);
       typeMessage(currentMessage);
     }
 
