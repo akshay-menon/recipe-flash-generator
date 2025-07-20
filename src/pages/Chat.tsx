@@ -746,26 +746,6 @@ Always return the full recipe card, not just the changes.`;
           </Card>
         )}
 
-        {/* Example Prompts - Only show when conversation is empty and no recipe */}
-        {conversation.length === 0 && !showRecipe && (
-          <div className="mb-8">
-            <p className="text-sm text-muted-foreground mb-3">Try these examples:</p>
-            <div className="flex flex-wrap gap-2">
-              {examplePrompts.map((prompt, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleExampleClick(prompt)}
-                  className="text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                  disabled={isLoading}
-                >
-                  {prompt}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
 
       </div>
     </div>
