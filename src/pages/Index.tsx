@@ -115,7 +115,7 @@ const Index = () => {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [showProfileBanner, setShowProfileBanner] = useState(true);
-  const [isPreferencesExpanded, setIsPreferencesExpanded] = useState(true);
+  const [isPreferencesExpanded, setIsPreferencesExpanded] = useState(false);
   const [recipeModification, setRecipeModification] = useState('');
   const [modificationPlaceholderIndex, setModificationPlaceholderIndex] = useState(0);
   const [isModifying, setIsModifying] = useState(false);
@@ -478,69 +478,83 @@ Format your response exactly like the original recipe format.`;
           </>
         )}
 
-        {/* Recipe Preferences */}
+        {/* Main CTA Section - Always Visible */}
+        {!parsedRecipe && (
+          <div className="text-center mb-8">
+            {isLoading ? (
+              <LoadingMessages />
+            ) : (
+              <Button 
+                onClick={generateRecipe} 
+                disabled={isLoading} 
+                size="lg"
+                className="px-12 py-6 text-xl font-semibold max-w-sm w-full"
+              >
+                Let's get cooking 🧑‍🍳
+              </Button>
+            )}
+            
+            {!user && (
+              <p className="text-base text-muted-foreground mt-6">
+                <Link to="/auth" className="text-primary hover:underline font-medium">
+                  Sign up
+                </Link>{" "}
+                to save your favorite recipes and personalize your experience!
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Recipe Preferences - Compact Summary */}
         <Card className="mb-8 overflow-hidden">
           <Collapsible open={isPreferencesExpanded} onOpenChange={setIsPreferencesExpanded}>
-            {/* Collapsed Summary View */}
-            {!isPreferencesExpanded && (
-              <div className="p-6 bg-gradient-to-r from-muted to-accent/10 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <Filter className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                    <div className="flex items-center gap-3 min-w-0">
-                      {/* Dietary Preference Chip - Emoji Only */}
-                      <div className="flex items-center justify-center w-12 h-12 bg-card rounded-card border-2 border-border shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
-                        <span className="text-lg">{getDietaryPreferenceEmoji()}</span>
-                      </div>
-                      
-                      {/* Number of People Chip - Number Only */}
-                      <div className="flex items-center justify-center w-12 h-12 bg-card rounded-card border-2 border-border shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
-                        <span className="text-sm font-semibold text-foreground">{numberOfPeople}</span>
-                      </div>
-                      
-                      {/* Special Request Chip - Thinking Emoji Only if Request Exists */}
-                      {specialRequest && (
-                        <div className="flex items-center justify-center w-12 h-12 bg-card rounded-card border-2 border-border shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
-                          <span className="text-lg">💭</span>
-                        </div>
-                      )}
+            {/* Always visible preference summary row */}
+            <div className="p-4 bg-gradient-to-r from-muted/30 to-accent/5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <span className="text-sm font-medium text-muted-foreground">Preferences</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    {/* Dietary Preference */}
+                    <div className="flex items-center justify-center w-8 h-8 bg-card rounded border border-border">
+                      <span className="text-sm">{getDietaryPreferenceEmoji()}</span>
                     </div>
+                    
+                    {/* Number of People */}
+                    <div className="flex items-center justify-center w-8 h-8 bg-card rounded border border-border">
+                      <span className="text-xs font-medium text-foreground">{numberOfPeople}</span>
+                    </div>
+                    
+                    {/* Special Request Indicator */}
+                    {specialRequest && (
+                      <div className="flex items-center justify-center w-8 h-8 bg-card rounded border border-border">
+                        <span className="text-sm">💭</span>
+                      </div>
+                    )}
                   </div>
-                  
-                  {/* Edit Button */}
-                  <CollapsibleTrigger asChild>
-                    <Button 
-                      variant="secondary" 
-                      size="sm" 
-                      className="ml-4 flex-shrink-0"
-                    >
-                      <span className="mr-2">✏️</span>
-                      Edit
-                    </Button>
-                  </CollapsibleTrigger>
                 </div>
+                
+                {/* Edit/Collapse Button */}
+                <CollapsibleTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                  >
+                    <span className="text-sm">{isPreferencesExpanded ? 'Collapse' : 'Edit'}</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isPreferencesExpanded ? 'rotate-180' : ''}`} />
+                  </Button>
+                </CollapsibleTrigger>
               </div>
-            )}
+            </div>
 
             {/* Expanded Full Form */}
             <CollapsibleContent className="transition-all duration-300 ease-in-out">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <Filter className="w-6 h-6 text-primary" />
-                  <h3 className="text-xl font-semibold text-foreground">Recipe Preferences</h3>
-                  <div className="flex-1"></div>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                      <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${isPreferencesExpanded ? 'rotate-180' : ''}`} />
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-                
-                <div className="space-y-8">
+              <CardContent className="p-6 border-t border-border">
+                <div className="space-y-6">
                   {/* Dietary Preference */}
                   <div className="space-y-3">
-                    <label className="text-base font-medium text-foreground">Dietary Preference</label>
-                    <div className="flex flex-wrap gap-3">
+                    <label className="text-sm font-medium text-foreground">Dietary Preference</label>
+                    <div className="flex flex-wrap gap-2">
                       {[
                         { value: 'vegan', label: 'Vegan', emoji: '🌱' },
                         { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
@@ -552,7 +566,7 @@ Format your response exactly like the original recipe format.`;
                             key={option.value}
                             onClick={() => setDietaryPreference(option.value)}
                             className={`
-                              inline-flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-button
+                              inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-button
                               transition-all duration-300 hover:scale-105 active:scale-95 select-none
                               ${isSelected 
                                 ? 'bg-gradient-primary text-primary-foreground shadow-primary' 
@@ -560,7 +574,7 @@ Format your response exactly like the original recipe format.`;
                               }
                             `}
                           >
-                            <span className="text-lg">{option.emoji}</span>
+                            <span>{option.emoji}</span>
                             {option.label}
                           </button>
                         );
@@ -570,80 +584,44 @@ Format your response exactly like the original recipe format.`;
 
                   {/* Number of People */}
                   <div className="space-y-3">
-                    <label className="text-base font-medium text-foreground">Number of People</label>
-                    <div className="flex items-center gap-4">
+                    <label className="text-sm font-medium text-foreground">Number of People</label>
+                    <div className="flex items-center gap-3">
                       <button
                         onClick={() => setNumberOfPeople(Math.max(1, parseInt(numberOfPeople) - 1).toString())}
-                        className="flex items-center justify-center w-12 h-12 rounded-card border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                        className="flex items-center justify-center w-10 h-10 rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                         disabled={parseInt(numberOfPeople) <= 1}
                       >
                         −
                       </button>
-                      <span className="text-xl font-semibold min-w-[2.5rem] text-center text-foreground">
+                      <span className="text-lg font-semibold min-w-[2rem] text-center text-foreground">
                         {numberOfPeople}
                       </span>
                       <button
                         onClick={() => setNumberOfPeople(Math.min(8, parseInt(numberOfPeople) + 1).toString())}
-                        className="flex items-center justify-center w-12 h-12 rounded-card border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                        className="flex items-center justify-center w-10 h-10 rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                         disabled={parseInt(numberOfPeople) >= 8}
                       >
                         +
                       </button>
                     </div>
                   </div>
-                </div>
 
-                {/* Separator */}
-                <div className="my-8 border-t border-border"></div>
-
-                {/* Special Requests Section */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-6 h-6 text-accent" />
-                    <h4 className="text-xl font-semibold text-foreground">Anything specific in mind?</h4>
-                  </div>
-                  
+                  {/* Special Requests Section */}
                   <div className="space-y-3">
-                    <label className="text-base font-medium text-foreground">Special Requests (optional)</label>
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-accent" />
+                      <label className="text-sm font-medium text-foreground">Special Requests (optional)</label>
+                    </div>
                     <Input
                       value={specialRequest}
                       onChange={(e) => setSpecialRequest(e.target.value)}
                       placeholder={placeholders[placeholderIndex]}
                       className="w-full transition-all duration-300"
                     />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Tell us what you're craving, ingredients you want to use, or any specific preferences
                     </p>
                   </div>
-                  
-                  {/* Generate Recipe Button - Integrated into preferences */}
-                  {!parsedRecipe && (
-                    <div className="mt-8 pt-6 border-t border-border">
-                      <div className="text-center">
-                        {isLoading ? (
-                          <LoadingMessages />
-                        ) : (
-                          <Button 
-                            onClick={generateRecipe} 
-                            disabled={isLoading} 
-                            size="lg"
-                            className="px-10 py-4 text-lg font-semibold"
-                          >
-                            Let's get cooking 🧑‍🍳
-                          </Button>
-                        )}
-                        
-                        {!user && (
-                          <p className="text-base text-muted-foreground mt-6">
-                            <Link to="/auth" className="text-primary hover:underline font-medium">
-                              Sign up
-                            </Link>{" "}
-                            to save your favorite recipes and personalize your experience!
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </CollapsibleContent>
