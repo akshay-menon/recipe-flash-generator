@@ -449,19 +449,35 @@ Format your response exactly like the original recipe format.`;
     );
   }
 
+  // Auto-scroll to recipe when generated and hide header
+  useEffect(() => {
+    if (parsedRecipe && !isLoading) {
+      const recipeElement = document.getElementById('recipe-card');
+      if (recipeElement) {
+        recipeElement.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }
+  }, [parsedRecipe, isLoading]);
+
   return <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
 
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-6">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight px-4">
-              {getRotatingHeading()}
-            </h1>
+        {/* Header - Hide when recipe is displayed */}
+        {!parsedRecipe && (
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-6">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight px-4">
+                {getRotatingHeading()}
+              </h1>
+            </div>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
+              AI recipes that fit your life and taste
+            </p>
           </div>
-          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-            AI recipes that fit your life and taste
-          </p>
-        </div>
+        )}
 
         {/* Profile Completion Banners */}
         {user && !profileLoading && showProfileBanner && (
@@ -505,225 +521,169 @@ Format your response exactly like the original recipe format.`;
           </div>
         )}
 
-        {/* Recipe Preferences - Compact Summary */}
-        <Card className="mb-8 overflow-hidden">
-          <Collapsible open={isPreferencesExpanded} onOpenChange={setIsPreferencesExpanded}>
-            {/* Always visible preference summary row */}
-            <div className="p-4 bg-gradient-to-r from-muted/30 to-accent/5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <span className="text-sm font-medium text-muted-foreground">Preferences</span>
-                  <div className="flex items-center gap-2 min-w-0">
-                    {/* Dietary Preference */}
-                    <div className="flex items-center justify-center w-8 h-8 bg-card rounded border border-border">
-                      <span className="text-sm">{getDietaryPreferenceEmoji()}</span>
-                    </div>
-                    
-                    {/* Number of People */}
-                    <div className="flex items-center justify-center w-8 h-8 bg-card rounded border border-border">
-                      <span className="text-xs font-medium text-foreground">{numberOfPeople}</span>
-                    </div>
-                    
-                    {/* Special Request Indicator */}
-                    {specialRequest && (
+        {/* Recipe Preferences - Hide when recipe is displayed */}
+        {!parsedRecipe && (
+          <Card className="mb-8 overflow-hidden">
+            <Collapsible open={isPreferencesExpanded} onOpenChange={setIsPreferencesExpanded}>
+              {/* Always visible preference summary row */}
+              <div className="p-4 bg-gradient-to-r from-muted/30 to-accent/5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <span className="text-sm font-medium text-muted-foreground">Preferences</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      {/* Dietary Preference */}
                       <div className="flex items-center justify-center w-8 h-8 bg-card rounded border border-border">
-                        <span className="text-sm">💭</span>
+                        <span className="text-sm">{getDietaryPreferenceEmoji()}</span>
                       </div>
-                    )}
+                      
+                      {/* Number of People */}
+                      <div className="flex items-center justify-center w-8 h-8 bg-card rounded border border-border">
+                        <span className="text-xs font-medium text-foreground">{numberOfPeople}</span>
+                      </div>
+                      
+                      {/* Special Request Indicator */}
+                      {specialRequest && (
+                        <div className="flex items-center justify-center w-8 h-8 bg-card rounded border border-border">
+                          <span className="text-sm">💭</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  
+                  {/* Edit/Collapse Button */}
+                  <CollapsibleTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                    >
+                      <span className="text-sm">{isPreferencesExpanded ? 'Collapse' : 'Edit'}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isPreferencesExpanded ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </CollapsibleTrigger>
                 </div>
-                
-                {/* Edit/Collapse Button */}
-                <CollapsibleTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                  >
-                    <span className="text-sm">{isPreferencesExpanded ? 'Collapse' : 'Edit'}</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isPreferencesExpanded ? 'rotate-180' : ''}`} />
-                  </Button>
-                </CollapsibleTrigger>
               </div>
-            </div>
 
-            {/* Expanded Full Form */}
-            <CollapsibleContent className="transition-all duration-300 ease-in-out">
-              <CardContent className="p-6 border-t border-border">
-                <div className="space-y-6">
-                  {/* Dietary Preference */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-foreground">Dietary Preference</label>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { value: 'vegan', label: 'Vegan', emoji: '🌱' },
-                        { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
-                        { value: 'non-vegetarian', label: 'Non-veg', emoji: '🍗' }
-                      ].map((option) => {
-                        const isSelected = dietaryPreference === option.value;
-                        return (
-                          <button
-                            key={option.value}
-                            onClick={() => setDietaryPreference(option.value)}
-                            className={`
-                              inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-button
-                              transition-all duration-300 hover:scale-105 active:scale-95 select-none
-                              ${isSelected 
-                                ? 'bg-gradient-primary text-primary-foreground shadow-primary' 
-                                : 'bg-card text-foreground hover:bg-accent hover:text-accent-foreground border border-border shadow-sm'
-                              }
-                            `}
-                          >
-                            <span>{option.emoji}</span>
-                            {option.label}
-                          </button>
-                        );
-                      })}
+              {/* Expanded Full Form */}
+              <CollapsibleContent className="transition-all duration-300 ease-in-out">
+                <CardContent className="p-6 border-t border-border">
+                  <div className="space-y-6">
+                    {/* Dietary Preference */}
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-foreground">Dietary Preference</label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { value: 'vegan', label: 'Vegan', emoji: '🌱' },
+                          { value: 'vegetarian', label: 'Veg', emoji: '🥬' },
+                          { value: 'non-vegetarian', label: 'Non-veg', emoji: '🍗' }
+                        ].map((option) => {
+                          const isSelected = dietaryPreference === option.value;
+                          return (
+                            <button
+                              key={option.value}
+                              onClick={() => setDietaryPreference(option.value)}
+                              className={`
+                                inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-button
+                                transition-all duration-300 hover:scale-105 active:scale-95 select-none
+                                ${isSelected 
+                                  ? 'bg-gradient-primary text-primary-foreground shadow-primary' 
+                                  : 'bg-card text-foreground hover:bg-accent hover:text-accent-foreground border border-border shadow-sm'
+                                }
+                              `}
+                            >
+                              <span>{option.emoji}</span>
+                              {option.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Number of People */}
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-foreground">Number of People</label>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setNumberOfPeople(Math.max(1, parseInt(numberOfPeople) - 1).toString())}
+                          className="flex items-center justify-center w-10 h-10 rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                          disabled={parseInt(numberOfPeople) <= 1}
+                        >
+                          −
+                        </button>
+                        <span className="text-lg font-semibold min-w-[2rem] text-center text-foreground">
+                          {numberOfPeople}
+                        </span>
+                        <button
+                          onClick={() => setNumberOfPeople(Math.min(8, parseInt(numberOfPeople) + 1).toString())}
+                          className="flex items-center justify-center w-10 h-10 rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                          disabled={parseInt(numberOfPeople) >= 8}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Special Requests Section */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-accent" />
+                        <label className="text-sm font-medium text-foreground">Special Requests (optional)</label>
+                      </div>
+                      <Input
+                        value={specialRequest}
+                        onChange={(e) => setSpecialRequest(e.target.value)}
+                        placeholder={placeholders[placeholderIndex]}
+                        className="w-full transition-all duration-300"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Tell us what you're craving, ingredients you want to use, or any specific preferences
+                      </p>
                     </div>
                   </div>
-
-                  {/* Number of People */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-foreground">Number of People</label>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => setNumberOfPeople(Math.max(1, parseInt(numberOfPeople) - 1).toString())}
-                        className="flex items-center justify-center w-10 h-10 rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
-                        disabled={parseInt(numberOfPeople) <= 1}
-                      >
-                        −
-                      </button>
-                      <span className="text-lg font-semibold min-w-[2rem] text-center text-foreground">
-                        {numberOfPeople}
-                      </span>
-                      <button
-                        onClick={() => setNumberOfPeople(Math.min(8, parseInt(numberOfPeople) + 1).toString())}
-                        className="flex items-center justify-center w-10 h-10 rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
-                        disabled={parseInt(numberOfPeople) >= 8}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Special Requests Section */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-accent" />
-                      <label className="text-sm font-medium text-foreground">Special Requests (optional)</label>
-                    </div>
-                    <Input
-                      value={specialRequest}
-                      onChange={(e) => setSpecialRequest(e.target.value)}
-                      placeholder={placeholders[placeholderIndex]}
-                      className="w-full transition-all duration-300"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Tell us what you're craving, ingredients you want to use, or any specific preferences
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </Card>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+        )}
 
 
         {/* Recipe Display */}
-        {parsedRecipe && <Card className="overflow-hidden mb-8">
-            <div className="bg-gradient-primary p-8 text-primary-foreground">
-              <h2 className="text-4xl font-bold mb-4">{parsedRecipe.name}</h2>
+        {parsedRecipe && <Card id="recipe-card" className="overflow-hidden mb-8">
+            <div className="bg-gradient-primary p-6 text-primary-foreground">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">{parsedRecipe.name}</h2>
               {modificationNote && (
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 text-primary-foreground rounded-card text-sm font-medium mb-4">
                   <span>✨</span>
                   <span>Modified: {modificationNote}</span>
                 </div>
               )}
-              <div className="flex items-center space-x-8 text-primary-foreground/90">
+              <div className="flex items-center space-x-6 text-primary-foreground/90 mb-4">
                 <div className="flex items-center">
-                  <Clock className="w-5 h-5 mr-2" />
-                  <span>{parsedRecipe.cookingTime}</span>
+                  <Clock className="w-4 h-4 mr-2" />
+                  <span className="text-sm">{parsedRecipe.cookingTime}</span>
                 </div>
                 <div className="flex items-center">
-                  <Users className="w-5 h-5 mr-2" />
-                  <span>{parsedRecipe.serves}</span>
+                  <Users className="w-4 h-4 mr-2" />
+                  <span className="text-sm">{parsedRecipe.serves}</span>
                 </div>
               </div>
             </div>
             
             {/* Recipe Image */}
             {parsedRecipe.imageUrl && (
-              <div className="px-8 pt-8">
+              <div className="px-6 pt-6">
                 <img 
                   src={parsedRecipe.imageUrl} 
                   alt={parsedRecipe.name}
-                  className="w-full h-64 object-cover rounded-card shadow-card"
+                  className="w-full h-48 sm:h-64 object-cover rounded-card shadow-card"
                 />
               </div>
             )}
             
-            <ScrollArea className="h-96 w-full">
-              <CardContent className="p-8">
-                {/* Nutritional Information Section */}
-                {parsedRecipe.nutrition && <div className="mb-8 bg-secondary/10 rounded-card p-8 border border-secondary/20">
-                    <h3 className="text-2xl font-semibold text-foreground mb-6 text-left">
-                      Nutritional Information (per person)
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="text-xl font-medium text-secondary">
-                        {parsedRecipe.nutrition.calories}
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-base text-foreground">
-                        <div className="flex items-center">
-                          <span className="font-medium">Protein:</span>
-                          <span className="ml-2">{parsedRecipe.nutrition.protein}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="font-medium">Carbs:</span>
-                          <span className="ml-2">{parsedRecipe.nutrition.carbs}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="font-medium">Fat:</span>
-                          <span className="ml-2">{parsedRecipe.nutrition.fat}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>}
-
-                {/* Ingredients Section */}
-                {parsedRecipe.ingredients.length > 0 && <div className="mb-10">
-                    <h3 className="text-3xl font-semibold text-foreground mb-6 border-b-2 border-accent/30 pb-3">
-                      Ingredients
-                    </h3>
-                    <ul className="space-y-4">
-                      {parsedRecipe.ingredients.map((ingredient: string, index: number) => <li key={index} className="flex items-start">
-                          <span className="inline-block w-2 h-2 bg-primary rounded-full mt-2 mr-4 flex-shrink-0"></span>
-                          <span className="text-foreground text-lg">{ingredient}</span>
-                        </li>)}
-                    </ul>
-                  </div>}
-
-                {/* Instructions Section */}
-                {parsedRecipe.instructions.length > 0 && <div className="mb-10">
-                    <h3 className="text-3xl font-semibold text-foreground mb-6 border-b-2 border-accent/30 pb-3">
-                      Instructions
-                    </h3>
-                    <ol className="space-y-6">
-                      {parsedRecipe.instructions.map((instruction: string, index: number) => <li key={index} className="flex items-start">
-                          <span className="inline-flex items-center justify-center w-10 h-10 bg-primary/10 text-primary rounded-full font-semibold mr-6 flex-shrink-0 mt-1">
-                            {index + 1}
-                          </span>
-                          <span className="text-foreground text-lg leading-relaxed">{instruction}</span>
-                        </li>)}
-                    </ol>
-                  </div>}
-              </CardContent>
-            </ScrollArea>
-
-            {/* Action Buttons */}
-            <div className="p-8 border-t border-border bg-muted/30">
+            {/* Action Buttons - Moved to top after image */}
+            <div className="p-6 border-b border-border bg-muted/30">
               {/* Recipe Modification Input */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-lg">✨</span>
                   <label className="text-sm font-medium text-foreground">
@@ -764,22 +724,22 @@ Format your response exactly like the original recipe format.`;
                 </p>
               </div>
 
-              {/* Icon Action Buttons */}
-              <div className="flex items-center justify-center gap-8">
+              {/* Action Buttons - Optimized for mobile */}
+              <div className="flex items-center justify-center gap-4 sm:gap-8">
                 {/* Save Recipe Button */}
                 <div className="flex flex-col items-center">
                   <Button 
                     onClick={user ? saveRecipe : () => window.location.href = '/auth'}
                     disabled={isSaving}
-                    className="w-16 h-16 rounded-full bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-primary hover:shadow-accent transition-all duration-300 p-0 flex items-center justify-center hover:scale-105"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-primary hover:shadow-accent transition-all duration-300 p-0 flex items-center justify-center hover:scale-105"
                   >
                     {isSaving ? (
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-destructive-foreground"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-destructive-foreground"></div>
                     ) : (
-                      <Heart className="w-6 h-6" fill="currentColor" />
+                      <Heart className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" />
                     )}
                   </Button>
-                  <span className="text-sm text-muted-foreground mt-3 font-medium">Save</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground mt-2 font-medium">Save</span>
                 </div>
 
                 {/* Generate Another Recipe Button */}
@@ -788,20 +748,20 @@ Format your response exactly like the original recipe format.`;
                     onClick={generateRecipe} 
                     disabled={isLoading} 
                     variant="secondary"
-                    className="w-16 h-16 rounded-full shadow-secondary hover:shadow-accent transition-all duration-300 p-0 flex items-center justify-center hover:scale-105"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-secondary hover:shadow-accent transition-all duration-300 p-0 flex items-center justify-center hover:scale-105"
                   >
                     {isLoading ? (
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary-foreground"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-secondary-foreground"></div>
                     ) : (
-                      <RotateCcw className="w-6 h-6" />
+                      <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />
                     )}
                   </Button>
-                  <span className="text-sm text-muted-foreground mt-3 font-medium">Fresh Recipe</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground mt-2 font-medium">Fresh Recipe</span>
                 </div>
               </div>
               
               {!user && (
-                <p className="text-sm text-muted-foreground mt-8 text-center">
+                <p className="text-sm text-muted-foreground mt-6 text-center">
                   <Link to="/auth" className="text-primary hover:underline">
                     Sign up
                   </Link>{" "}
@@ -809,6 +769,63 @@ Format your response exactly like the original recipe format.`;
                 </p>
               )}
             </div>
+
+            {/* Recipe Content - No scroll area, dynamic height */}
+            <CardContent className="p-6">
+              {/* Nutritional Information Section */}
+              {parsedRecipe.nutrition && <div className="mb-8 bg-secondary/10 rounded-card p-6 border border-secondary/20">
+                  <h3 className="text-xl font-semibold text-foreground mb-4 text-left">
+                    Nutritional Information (per person)
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="text-lg font-medium text-secondary">
+                      {parsedRecipe.nutrition.calories}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-foreground">
+                      <div className="flex items-center">
+                        <span className="font-medium">Protein:</span>
+                        <span className="ml-2">{parsedRecipe.nutrition.protein}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="font-medium">Carbs:</span>
+                        <span className="ml-2">{parsedRecipe.nutrition.carbs}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="font-medium">Fat:</span>
+                        <span className="ml-2">{parsedRecipe.nutrition.fat}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>}
+
+              {/* Ingredients Section */}
+              {parsedRecipe.ingredients.length > 0 && <div className="mb-8">
+                  <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4 border-b-2 border-accent/30 pb-2">
+                    Ingredients
+                  </h3>
+                  <ul className="space-y-3">
+                    {parsedRecipe.ingredients.map((ingredient: string, index: number) => <li key={index} className="flex items-start">
+                        <span className="inline-block w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="text-foreground text-sm sm:text-base">{ingredient}</span>
+                      </li>)}
+                  </ul>
+                </div>}
+
+              {/* Instructions Section */}
+              {parsedRecipe.instructions.length > 0 && <div className="mb-8">
+                  <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4 border-b-2 border-accent/30 pb-2">
+                    Instructions
+                  </h3>
+                  <ol className="space-y-4">
+                    {parsedRecipe.instructions.map((instruction: string, index: number) => <li key={index} className="flex items-start">
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-primary/10 text-primary rounded-full font-semibold mr-4 flex-shrink-0 mt-1 text-sm">
+                          {index + 1}
+                        </span>
+                        <span className="text-foreground text-sm sm:text-base leading-relaxed">{instruction}</span>
+                      </li>)}
+                  </ol>
+                </div>}
+            </CardContent>
           </Card>}
 
         {/* Error Display */}
