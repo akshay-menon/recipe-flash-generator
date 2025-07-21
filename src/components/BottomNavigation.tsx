@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, MessageSquare, BookOpen, Settings } from 'lucide-react';
+import { Zap, MessageSquare, BookOpen, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const BottomNavigation = () => {
@@ -9,9 +9,9 @@ const BottomNavigation = () => {
 
   const navItems = [
     {
-      label: 'Home',
+      label: 'Generate',
       path: '/',
-      icon: Home,
+      icon: Zap,
     },
     {
       label: 'Chat',
