@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<{ name: string | null; emoji: string }>({
     name: null,
     emoji: '👨‍🍳'
@@ -37,15 +38,33 @@ const Header = () => {
     }
   };
 
+  const handleLogoClick = () => {
+    // Clear localStorage to reset recipe state
+    try {
+      localStorage.removeItem('home-recipe-state');
+    } catch (error) {
+      console.error('Error clearing recipe state:', error);
+    }
+    
+    // Navigate to home page
+    navigate('/');
+    
+    // Force page reload to ensure clean state
+    window.location.reload();
+  };
+
   const displayName = userProfile.name || user?.email?.split('@')[0] || 'Chef';
 
   return (
     <div className="flex justify-between items-center p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      {/* Logo */}
-      <div className="flex items-center gap-2">
+      {/* Logo - Clickable */}
+      <button 
+        onClick={handleLogoClick}
+        className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+      >
         <span className="text-xl">🍉</span>
         <span className="font-semibold text-lg text-foreground">Melon Farms</span>
-      </div>
+      </button>
 
       {/* Profile Dropdown - only show when user is logged in */}
       {user ? (
