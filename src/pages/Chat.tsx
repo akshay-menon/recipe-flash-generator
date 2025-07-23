@@ -107,7 +107,7 @@ const Chat = () => {
         cookingTime = trimmedLine.replace('**Cooking Time:**', '').trim();
       } else if (trimmedLine.includes('**Serves:**')) {
         serves = trimmedLine.replace('**Serves:**', '').trim();
-      } else if (trimmedLine.includes('**Nutritional Information (per person):**')) {
+      } else if (trimmedLine.includes('**Nutritional Information (per person):**') || trimmedLine.includes('**Nutritional Information (per serving):**')) {
         currentSection = 'nutrition';
       } else if (trimmedLine.includes('**Ingredients:**')) {
         currentSection = 'ingredients';
