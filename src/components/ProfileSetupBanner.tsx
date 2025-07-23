@@ -12,7 +12,7 @@ const ProfileSetupBanner: React.FC<ProfileSetupBannerProps> = ({ onDismiss }) =>
   return (
     <Card className="border-primary/20 bg-primary/5 mb-6">
       <CardContent className="p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-full">
               <User className="h-5 w-5 text-primary" />
@@ -24,8 +24,8 @@ const ProfileSetupBanner: React.FC<ProfileSetupBannerProps> = ({ onDismiss }) =>
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="default" size="sm">
+          <div className="flex items-center gap-2 md:flex-shrink-0">
+            <Button asChild variant="default" size="sm" className="flex-1 md:flex-initial">
               <Link to="/profile">Complete profile</Link>
             </Button>
             {onDismiss && (
