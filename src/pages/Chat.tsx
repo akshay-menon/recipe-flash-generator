@@ -128,24 +128,20 @@ const Chat = () => {
       }
     }
 
-    // Only return parsed recipe if we have minimum required fields
-    if (recipeName && ingredients.length > 0 && instructions.length > 0) {
-      return {
-        name: recipeName || 'Generated Recipe',
-        cookingTime: cookingTime || '30-45 minutes',
-        serves: serves || '2 people',
-        nutrition: {
-          calories: calories || 'N/A',
-          protein: protein || 'N/A',
-          carbs: carbs || 'N/A',
-          fat: fat || 'N/A'
-        },
-        ingredients,
-        instructions
-      };
-    }
-
-    return null;
+    return {
+      name: recipeName || 'Generated Recipe',
+      cookingTime: cookingTime || '30-45 minutes',
+      serves: serves || '2 people',
+      nutrition: {
+        calories: calories || 'N/A',
+        protein: protein || 'N/A',
+        carbs: carbs || 'N/A',
+        fat: fat || 'N/A'
+      },
+      ingredients,
+      instructions,
+      imageUrl: undefined as string | undefined
+    };
   };
 
   // Load persisted state on component mount
